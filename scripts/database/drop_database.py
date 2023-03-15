@@ -3,11 +3,12 @@ import sqlite3
 import config
 import yaml
 
+# configure logging
 config.load_logging_config()
 
 # open database connection
 logging.debug('loading system configuration for database connection')
-config_stream = open('../config/system_config.yaml', 'r')
+config_stream = open('../../config/system_config.yaml', 'r')
 config_map = yaml.safe_load(config_stream)
 
 logging.debug('connecting to database')
@@ -24,10 +25,10 @@ cursor.execute("DROP TABLE IF EXISTS COMPILE_TESTCASE")
 cursor.execute("DROP TABLE IF EXISTS CONTAINS_TESTCASE")
 cursor.execute("DROP TABLE IF EXISTS UNIT_TESTCASE")
 cursor.execute("DROP TABLE IF EXISTS TESTCASE")
-cursor.execute("DROP TABLE IF EXISTS CLASSIFICATION_TAG")
-cursor.execute("DROP TABLE IF EXISTS TAG")
-cursor.execute("DROP TABLE IF EXISTS CLASSIFICATION")
 cursor.execute("DROP TABLE IF EXISTS TASK")
+cursor.execute("DROP TABLE IF EXISTS CLASSIFICATION_TAG")
+cursor.execute("DROP TABLE IF EXISTS CLASSIFICATION")
+cursor.execute("DROP TABLE IF EXISTS TAG")
 
 connection.commit()
 logging.info('database successfully dropped')
