@@ -1,0 +1,16 @@
+# Base configuration information
+version: 0.1
+
+# Component Configurations
+management:
+  database:
+    name: lmaa-local
+    maxlength:
+      assignment: 262144
+      solution: 262144
+    password: ""
+
+# Additional configuration
+logging:
+  level: INFO
+  filename: lmaa-log.log
