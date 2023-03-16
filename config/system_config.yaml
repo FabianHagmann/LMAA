@@ -1,7 +1,7 @@
 # Base configuration information
 version: 0.1
 
-# Component Configurations
+# Management Configuration
 management:
   database:
     name: lmaa-local
@@ -9,6 +9,11 @@ management:
       assignment: 262144
       solution: 262144
     password: ""
+
+# Communicator Configuration
+communicator:
+  openai-completion:
+    apikey: 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
 
 # Additional configuration
 logging:

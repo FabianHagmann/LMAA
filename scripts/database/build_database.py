@@ -1,26 +1,28 @@
 import logging
+import os.path
 import sqlite3
-import config
-import yaml
 import subprocess
 
+import yaml
+
+import config
+from utils import project_utils
 
 # configure logging
 config.load_logging_config()
-
 
 # drop existing database if exists
 logging.info("dropping existing database")
 subprocess.run(["python", "drop_database.py"])
 
-
 # open database connection
 logging.debug('loading system configuration for database connection')
-config_stream = open('../../config/system_config.yaml', 'r')
+config_stream = open(os.path.join(project_utils.find_root_path(__file__), 'config', 'system_config.yaml'), 'r')
 config_map = yaml.safe_load(config_stream)
 
 logging.debug('connecting to database')
-connection = sqlite3.connect('../data/' + config_map['management']['database']['name'] + '.db')
+connection = sqlite3.connect(
+    os.path.join(project_utils.find_root_path(__file__), 'data', config_map['management']['database']['name'] + '.db'))
 cursor = connection.cursor()
 logging.info('database connection established')
 
@@ -56,8 +58,8 @@ cursor.execute("CREATE TABLE TASK("
                "TASK INTEGER,"
                "SUBTASK VARCHAR(8),"
                "ASSIGNMENT VARCHAR(" + str(assignment_maxlength) + ") NOT NULL,"
-               "CLASSIFICATION_ID INTEGER REFERENCES CLASSIFICATION(ID)"
-               ")")
+                                                                   "CLASSIFICATION_ID INTEGER REFERENCES CLASSIFICATION(ID)"
+                                                                   ")")
 
 cursor.execute("CREATE TABLE TESTCASE("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -85,8 +87,8 @@ cursor.execute("CREATE TABLE SOLUTION("
                "TIMESTAMP TIMESTAMP NOT NULL,"
                "MODEL VARCHAR(32) NOT NULL,"
                "SOLUTION VARCHAR(" + str(solution_maxlength) + ") NOT NULL,"
-               "TASK INTEGER REFERENCES TASK(ID) NOT NULL"
-               ")")
+                                                               "TASK INTEGER REFERENCES TASK(ID) NOT NULL"
+                                                               ")")
 
 cursor.execute("CREATE TABLE TESTRESULT("
                "SOLUTION_ID INTEGER REFERENCES SOLUTION(ID),"
