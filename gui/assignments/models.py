@@ -41,9 +41,9 @@ class Assignment(models.Model):
     semester = models.CharField(max_length=6)
     sheet = models.IntegerField()
     task = models.IntegerField()
-    subtask = models.CharField(max_length=8, blank=False)
-    assignment = models.CharField(max_length=assignment_maxlength, blank=True)
-    classification = models.OneToOneField(Classification, on_delete=models.CASCADE, blank=False)
+    subtask = models.CharField(max_length=8, blank=True)
+    assignment = models.CharField(max_length=assignment_maxlength)
+    classification = models.OneToOneField(Classification, on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = "assignment"

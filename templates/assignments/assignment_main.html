@@ -18,16 +18,19 @@
     </style>
 </head>
 <body>
-{% include 'assignments/../home/../header.html' with page='home' %}
+{% include 'header.html' with page='assignments' %}
 <div class="content">
     <div class="row w-auto">
         {% include 'assignments/assignment_list.html' %}
     </div>
     <div class="row w-auto">
         <div class="col-4 px-0">
-{#            {% bootstrap_button "Create new" button_type='submit' button_class='btn-primary' %}#}
-{#            {% bootstrap_button "Manage types" button_type='submit' button_class='btn-secondary' %}#}
+            <a href="{% url 'assignments-create' %}">
+                <button class="btn btn-primary">Create new</button>
+            </a>
+            {#            {% bootstrap_button "Manage types" button_type='submit' button_class='btn-secondary' %}#}
         </div>
     </div>
+</div>
 </body>
 </html>
