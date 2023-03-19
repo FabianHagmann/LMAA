@@ -23,8 +23,7 @@
             <td class="btn-group col-1" role="group">
                 {% bootstrap_button "View" button_type='button' button_class='btn-success' size='sm' %}
                 {% bootstrap_button "Edit" button_type='button' button_class='btn-primary' size='sm' extra_classes='ms-1' %}
-                {% bootstrap_button "Delete" button_type='button' button_class='btn-danger' size='sm' extra_classes='ms-1'%}
-            </td>
+                <a class="btn btn-danger btn-sm ms-1" href="{% url 'assignments-delete' pk=assignment.id %}">Delete</a>
         </tr>
     {% empty %}
         <tr>

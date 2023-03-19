@@ -1,7 +1,8 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 
 from gui.assignments.forms import AssignmentsCreateForm
 from gui.assignments.models import Assignment
@@ -35,3 +36,10 @@ def create_assignment(request):
             return HttpResponseRedirect('/assignments')
     context = {'form': form}
     return render(request, 'assignments/assignments_create_form.html', context)
+
+
+class AssignmentsDelete(DeleteView):
+    model = Assignment
+    context_object_name = 'assignment'
+    success_url = reverse_lazy('assignments')
+    template_name = 'assignments/assignments_confirm_delete.html'

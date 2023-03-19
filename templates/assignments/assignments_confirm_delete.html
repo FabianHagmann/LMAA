@@ -1,0 +1,36 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LMAA - Assignments</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'lmaa_logo_icon.ico' %}"/>
+    <style>
+        .content {
+            max-width: 70%;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+{% include 'header.html' with page='assignments' %}
+{% block content %}
+    <div class="content">
+        <form method="post">
+            {% csrf_token %}
+            <h2>Delete assignment</h2>
+            <p>Are you sure that you want to delete assignment "{{ assignment.semester }} - {{ assignment.task }}"?</p>
+            <p class="form-buttons">
+                <input type="submit" class="btn btn-primary" value="Delete">
+                <a href="{% url 'assignments' %}" class="btn btn-outline">Cancel</a>
+            </p>
+        </form>
+    </div>
+{% endblock content %}
+</body>
+</html>
