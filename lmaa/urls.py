@@ -16,5 +16,6 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('gui.urls'))
+    path('', include('gui.home.urls')),
+    path('', include('gui.assignments.urls')),
 ]

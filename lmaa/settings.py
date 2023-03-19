@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'gui.apps.GuiConfig',
+    'gui.home.apps.HomeConfig',
+    'gui.assignments.apps.AssignmentsConfig',
     'bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -186,3 +187,6 @@ BOOTSTRAP5 = {
         'inline': 'bootstrap5.renderers.InlineFieldRenderer',
     },
 }
+
+
+SESSION_COOKIE_DOMAIN = '127.0.0.1'

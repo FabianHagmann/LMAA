@@ -1,0 +1,35 @@
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col" class="col-2">Semester</th>
+        <th scope="col" class="col-2">Sheet</th>
+        <th scope="col" class="col-2">Task</th>
+        <th scope="col" class="col-2">Subtask</th>
+        <th scope="col" class="col-1">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for assignment in object_list %}
+        <tr>
+            <td class="col-2">{{ assignment.semester }}</td>
+            <td class="col-2">{{ assignment.sheet }}</td>
+            <td class="col-2">{{ assignment.task }}</td>
+            <td class="col-2">{{ assignment.subtask }}</td>
+            <td class="btn-group col-1" role="group">
+                {% bootstrap_button "View" button_type='button' button_class='btn-success' size='sm' %}
+                {% bootstrap_button "Edit" button_type='button' button_class='btn-primary' size='sm' extra_classes='ms-1' %}
+                {% bootstrap_button "Delete" button_type='button' button_class='btn-danger' size='sm' extra_classes='ms-1'%}
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <th colspan="5">No assignments yet.</th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
