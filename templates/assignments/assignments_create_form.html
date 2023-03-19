@@ -1,35 +1,15 @@
-{% load static %}
+{% extends 'base.html' %}
+
 {% load bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LMAA - Assignments</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'lmaa_logo_icon.ico' %}"/>
-    <style>
-        .content {
-            max-width: 70%;
-            margin: auto;
-        }
-    </style>
-</head>
-<body>
-
 {% block content %}
-    {% include 'header.html' with page='assignments' %}
-    <div class="content">
-        <h1>Create new assignment</h1>
-        <form action="" method="post" class="form">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <button type="submit" class="btn btn-primary" value="">Submit</button>
-        </form>
-    </div>
+    <h1>Create new assignment</h1>
+    <form action="" method="post" class="form">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary" value="">Submit</button>
+    </form>
 {% endblock %}
-
-</body>
-</html>

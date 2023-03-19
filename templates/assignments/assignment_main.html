@@ -1,36 +1,16 @@
-{% load static %}
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LMAA - Assignments</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'lmaa_logo_icon.ico' %}"/>
-    <style>
-        .content {
-            max-width: 70%;
-            margin: auto;
-        }
-    </style>
-</head>
-<body>
-{% include 'header.html' with page='assignments' %}
-<div class="content">
-    <div class="row w-auto">
-        {% include 'assignments/assignment_list.html' %}
-    </div>
-    <div class="row w-auto">
-        <div class="col-4 px-0">
-            <a href="{% url 'assignments-create' %}">
-                <button class="btn btn-primary">Create new</button>
-            </a>
-            {#            {% bootstrap_button "Manage types" button_type='submit' button_class='btn-secondary' %}#}
-        </div>
+{% block content %}
+<div class="row w-auto">
+    {% include 'assignments/assignment_list.html' %}
+</div>
+<div class="row w-auto">
+    <div class="col-4 px-0">
+        <a href="{% url 'assignments-create' %}">
+            <button class="btn btn-primary">Create new</button>
+        </a>
+        {#            {% bootstrap_button "Manage types" button_type='submit' button_class='btn-secondary' %}#}
     </div>
 </div>
-</body>
-</html>
+</div>
+{% endblock %}

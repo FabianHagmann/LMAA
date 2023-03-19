@@ -1,19 +1,5 @@
-{% load static %}
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LMAA - Home</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'lmaa_logo_icon.ico' %}"/>
-</head>
-<body>
-{% include 'header.html' with page='home' %}
-
-
-</body>
-</html>
+{% block content %}
+TBD
+{% endblock %}
