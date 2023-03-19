@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+{% block content %}
+    {% if is_update %}
+        <h1>Update assignment</h1>
+    {% elif is_disabled %}
+        <h1>Assignment details</h1>
+    {% else %}
+        <h1>Create new assignment</h1>
+    {% endif %}
+
+    <form action="" method="post" class="form">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% if is_update %}
+            <button type="submit" class="btn btn-primary" value="">Update</button>
+        {% elif is_disabled %}
+            <a class="btn btn-primary" href="{% url 'assignments-edit' pk=id %}">Edit</a>
+            <a class="btn btn-danger ms-1" href="{% url 'assignments-delete' pk=id %}">Delete</a>
+        {% else %}
+            <button type="submit" class="btn btn-primary" value="">Create</button>
+        {% endif %}
+
+    </form>
+{% endblock %}

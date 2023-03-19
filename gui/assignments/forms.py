@@ -11,7 +11,7 @@ config_map = yaml.safe_load(config_stream)
 assignment_maxlength = config_map['management']['database']['maxlength']['assignment']
 
 
-class AssignmentsCreateForm(ModelForm):
+class AssignmentsForm(ModelForm):
     class Meta:
         model = Assignment
         fields = '__all__'
@@ -21,5 +21,5 @@ class AssignmentsCreateForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(AssignmentsCreateForm, self).__init__(*args, **kwargs)
+        super(AssignmentsForm, self).__init__(*args, **kwargs)
         self.fields['subtask'].required = False
