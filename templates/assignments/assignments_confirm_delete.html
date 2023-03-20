@@ -4,7 +4,7 @@
 <form method="post">
     {% csrf_token %}
     <h2>Delete assignment</h2>
-    <p>Are you sure that you want to delete assignment "{{ assignment.semester }} - {{ assignment.task }}"?</p>
+    <p>Are you sure that you want to delete assignment "{{assignment}}"?</p>
     <p class="form-buttons">
         <input type="submit" class="btn btn-primary" value="Delete">
         <a href="{% url 'assignments' %}" class="btn btn-outline">Cancel</a>

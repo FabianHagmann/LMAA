@@ -5,7 +5,8 @@ import yaml
 from openai import OpenAIError
 
 import config
-from scripts.communication import Communicator, CommunicationResponse
+from scripts.communication.communicator import Communicator, CommunicationResponse
+from scripts.communication.communicator import CommunicatorProperty, PropertyType
 from utils import project_utils
 
 
@@ -14,18 +15,18 @@ class OpenAICommunicatorImpl(Communicator):
     Implementation of 'Communicator' from communication with OpenAI models
     """
 
-    # parameter configuration
-    mandatory_parameters = ['prompt', 'model']
-    optional_parameters = ['temperature', 'max_tokens', 'top_p', 'frequency_penalty', 'presence_penalty']
-    optional_parameter_defaults = {'temperature': 0.7,
-                                   'max_tokens': 256,
-                                   'top_p': 1,
-                                   'frequency_penalty': 0,
-                                   'presence_penalty': 0
-                                   }
+    properties = [
+        CommunicatorProperty('prompt', PropertyType.str, True, ""),
+        CommunicatorProperty('model', PropertyType.str, True, ""),
+        CommunicatorProperty('temperature', PropertyType.float, False, 0.7),
+        CommunicatorProperty('max_tokens', PropertyType.int, False, 256),
+        CommunicatorProperty('top_p', PropertyType.float, False, 1),
+        CommunicatorProperty('frequency_penalty', PropertyType.float, False, 0),
+        CommunicatorProperty('presence_penalty', PropertyType.float, False, 0),
+    ]
+    name = 'OpenAI'
 
     def __init__(self):
-        super().__init__('OpenAI')
         config.load_logging_config()
         OpenAICommunicatorImpl.__fetch_api_key__()
 
@@ -58,28 +59,47 @@ class OpenAICommunicatorImpl(Communicator):
             # if response was completed with multiple api-calls, send entire communication history
             return self.__handle_openai_success__(completion, request_parameters['prompt'])
 
-    def validate_request_parameters(self, request_parameters: dict[str, str]) -> bool:
+    def validate_request_parameters(self, request_parameters: dict[str, any]) -> bool:
         # check if no unknown parameters are given
-        for parameter in request_parameters.keys():
-            if parameter not in self.mandatory_parameters and \
-                    parameter not in self.optional_parameters:
-                logging.error("Parameter validation failed: Unexpected parameter \'" + parameter + "\' found")
+        for parameter_key in request_parameters.keys():
+            exists = False
+            for prop in self.properties:
+                if parameter_key == prop.name and type(request_parameters.get(parameter_key)) == prop.type.name:
+                    exists = True
+            if exists is False:
+                logging.error("Parameter validation failed: Unexpected parameter \'" + parameter_key + "\' found")
                 return False
 
         # check if all mandatory parameters are given
-        for parameter in self.mandatory_parameters:
-            if parameter not in request_parameters.keys():
-                logging.error("Parameter validation failed: Mandatory parameter \'" + parameter + "\' not found")
+        for prop in self.properties:
+            if prop.mandatory is not True:
+                continue
+            if request_parameters.keys().__contains__(prop.name) and type(
+                    request_parameters.get(prop.name)) == prop.type:
+                continue
+            else:
                 return False
         return True
 
-    def get_mandatory_parameters(self) -> list[str]:
-        return self.mandatory_parameters
+    def get_mandatory_parameters(self) -> list[CommunicatorProperty]:
+        mandatory_properties = []
 
-    def get_optional_parameters(self) -> list[str]:
-        return self.optional_parameters
+        for prop in self.properties:
+            if prop.mandatory:
+                mandatory_properties.append(prop)
 
-    def __send_validated_request__(self, validated_request_parameters: dict[str, str]) -> str:
+        return mandatory_properties
+
+    def get_optional_parameters(self) -> list[CommunicatorProperty]:
+        optional_properties = []
+
+        for prop in self.properties:
+            if not prop.mandatory:
+                optional_properties.append(prop)
+
+        return optional_properties
+
+    def __send_validated_request__(self, validated_request_parameters: dict[str, any]) -> str:
         """
         submethod for sending a request containing validated request data
 
@@ -91,19 +111,19 @@ class OpenAICommunicatorImpl(Communicator):
             prompt=validated_request_parameters['prompt'],
             temperature=validated_request_parameters['temperature'] \
                 if validated_request_parameters.__contains__('temperature') \
-                else self.optional_parameter_defaults['temperature'],
+                else CommunicatorProperty.fetch_default_value(self.properties, 'temperature'),
             max_tokens=validated_request_parameters['max_tokens'] \
                 if validated_request_parameters.__contains__('max_tokens') \
-                else self.optional_parameter_defaults['max_tokens'],
+                else CommunicatorProperty.fetch_default_value(self.properties, 'max_tokens'),
             top_p=validated_request_parameters['top_p'] \
                 if validated_request_parameters.__contains__('top_p') \
-                else self.optional_parameter_defaults['top_p'],
+                else CommunicatorProperty.fetch_default_value(self.properties, 'top_p'),
             frequency_penalty=validated_request_parameters['frequency_penalty'] \
                 if validated_request_parameters.__contains__('frequency_penalty') \
-                else self.optional_parameter_defaults['frequency_penalty'],
+                else CommunicatorProperty.fetch_default_value(self.properties, 'frequency_penalty'),
             presence_penalty=validated_request_parameters['presence_penalty'] \
                 if validated_request_parameters.__contains__('presence_penalty') \
-                else self.optional_parameter_defaults['presence_penalty'],
+                else CommunicatorProperty.fetch_default_value(self.properties, 'presence_penalty'),
         )
 
     @staticmethod

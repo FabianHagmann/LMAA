@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'gui.home.apps.HomeConfig',
     'gui.assignments.apps.AssignmentsConfig',
+    'gui.communication.apps.CommunicationConfig',
     'django_select2',
     'bootstrap5',
     'django.contrib.admin',

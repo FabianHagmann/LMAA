@@ -44,6 +44,10 @@ class Assignment(models.Model):
     class Meta:
         db_table = "assignment"
 
+    def __str__(self):
+        return self.semester + '-AB' + str(self.sheet) + '-' + str(self.task) \
+            + (self.subtask if self.subtask is not None else '')
+
 
 class Testcase(models.Model):
     class Meta:

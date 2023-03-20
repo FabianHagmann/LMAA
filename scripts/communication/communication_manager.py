@@ -4,7 +4,8 @@ import inspect
 import os
 import os.path
 
-from communicator import Communicator
+from utils import project_utils
+from scripts.communication.communicator import Communicator
 
 
 def __build_implementation_path__():
@@ -12,7 +13,7 @@ def __build_implementation_path__():
     function for constructing the path to the directory containing the communicator implementations
     :return:
     """
-    return os.path.join(str(os.getcwd()), 'impl')
+    return os.path.join(project_utils.find_root_path(__file__), 'scripts', 'communication', 'impl')
 
 
 class CommunicatorManager:
@@ -22,20 +23,13 @@ class CommunicatorManager:
     def __init__(self):
         self.implementations = self.__load_communicator_implementations__()
 
-    def get_implementations(self) -> dict[str, Communicator]:
+    def get_implementations(self) -> list[Communicator]:
         """
-        Fetch all available communicator implementations as a dict[name,implementation instance]
+        Fetch all available communicator implementations as a list[Communicator]
 
-        :return: all available communicator implementations as dict[name,implementation instance]
+        :return: all available communicator implementations as list[Communicator]
         """
-        impls = {}
-
-        for impl in self.implementations:
-            impl_instance = impl.__call__()
-            impl_name = impl_instance.get_name()
-            impls.__setitem__(impl_name, impl_instance)
-
-        return impls
+        return self.implementations
 
     def __load_communicator_implementations__(self) -> list[Communicator]:
         """
@@ -63,7 +57,7 @@ class CommunicatorManager:
         if file_name.split('.')[0].startswith('__'):
             return None
 
-        impl_module = importlib.import_module("impl." + file_name.split('.')[0])
+        impl_module = importlib.import_module("scripts.communication.impl." + file_name.split('.')[0])
         impl_module_classes = inspect.getmembers(impl_module, inspect.isclass)
         impl_class = None
         for name, object in impl_module_classes:
