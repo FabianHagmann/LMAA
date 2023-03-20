@@ -4,6 +4,7 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
+{% load bootstrap5_custom_tags %}
 
 {% block content %}
     {% if is_update %}
@@ -14,9 +15,23 @@
         <h1>Create new assignment</h1>
     {% endif %}
 
+
     <form action="" method="post" class="form">
         {% csrf_token %}
-        {% bootstrap_form form %}
+
+        {% bootstrap_form_group form.semester %}
+        {% bootstrap_form_group form.sheet %}
+        {% bootstrap_form_group form.task %}
+        {% bootstrap_form_group form.subtask %}
+        {% bootstrap_form_group form.assignment %}
+
+        <h3 class="mt-5 mb-3">Classification data</h3>
+
+        {% bootstrap_form_group form.effort %}
+        {% bootstrap_form_group form.scope %}
+        {% bootstrap_form_group form.tags %}
+
+        <h3 class="mt-5 mb-3">Actions</h3>
         {% if is_update %}
             <button type="submit" class="btn btn-primary" value="">Update</button>
         {% elif is_disabled %}
@@ -25,6 +40,5 @@
         {% else %}
             <button type="submit" class="btn btn-primary" value="">Create</button>
         {% endif %}
-
     </form>
 {% endblock %}

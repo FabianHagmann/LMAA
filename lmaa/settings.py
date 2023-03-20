@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'gui.home.apps.HomeConfig',
     'gui.assignments.apps.AssignmentsConfig',
+    'django_select2',
     'bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +89,6 @@ DATABASES = {
         'NAME': os.path.join(db_path, db_name),
     }
 }
-
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
 
@@ -176,7 +177,7 @@ BOOTSTRAP5 = {
     'success_css_class': 'is-valid',
 
     # Renderers (only set these if you have studied the source and understand the inner workings)
-    'formset_renderers':{
+    'formset_renderers': {
         'default': 'bootstrap5.renderers.FormsetRenderer',
     },
     'form_renderers': {
@@ -187,6 +188,5 @@ BOOTSTRAP5 = {
         'inline': 'bootstrap5.renderers.InlineFieldRenderer',
     },
 }
-
 
 SESSION_COOKIE_DOMAIN = '127.0.0.1'

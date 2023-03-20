@@ -61,6 +61,9 @@ def assignment_details(request, pk):
         form.fields['task'].disabled = True
         form.fields['subtask'].disabled = True
         form.fields['assignment'].disabled = True
+        form.fields['effort'].disabled = True
+        form.fields['scope'].disabled = True
+        form.fields['tags'].disabled = True
 
         if form.is_valid():
             form.save()
@@ -72,6 +75,9 @@ def assignment_details(request, pk):
         form.fields['task'].disabled = True
         form.fields['subtask'].disabled = True
         form.fields['assignment'].disabled = True
+        form.fields['effort'].disabled = True
+        form.fields['scope'].disabled = True
+        form.fields['tags'].disabled = True
 
     return render(request, 'assignments/assignments_form.html', {'id': pk, 'form': form, 'is_update': False,
                                                                  'is_disabled': True})
@@ -86,13 +92,8 @@ class AssignmentsDelete(DeleteView):
 
 class TagList(ListView):
     model = Tag
-    paginate_by = 10
-    template_name = 'assignments/tags/'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
-        return context
+    queryset = Tag.objects.order_by('name')
+    context_object_name = 'book_list'
 
 
 class TagView(TagList):

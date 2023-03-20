@@ -1,7 +1,9 @@
 import os
 
 import yaml
+from django import forms
 from django.forms import ModelForm, Textarea
+from django_select2.forms import Select2MultipleWidget
 
 from gui.assignments.models import Assignment, Tag
 from lmaa.settings import BASE_DIR
@@ -12,10 +14,20 @@ assignment_maxlength = config_map['management']['database']['maxlength']['assign
 
 
 class AssignmentsForm(ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all().order_by('name'),
+        widget=Select2MultipleWidget(attrs={
+            'class': 'select2-bootstrap-5',
+            'data-bs-select': 'multiple',
+            'data-bs-container': 'body',
+            'data-live-search': 'true',
+            'data-placeholder': 'Choose tags',
+        }),
+    )
+
     class Meta:
         model = Assignment
         fields = '__all__'
-        exclude = ['classification']
         widgets = {
             'assignment': Textarea(attrs={'rows': 5}),
         }
@@ -23,10 +35,11 @@ class AssignmentsForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AssignmentsForm, self).__init__(*args, **kwargs)
         self.fields['subtask'].required = False
+        self.fields['effort'].required = False
+        self.fields['scope'].required = False
 
 
 class TagsForm(ModelForm):
-
     class Meta:
         model = Tag
         fields = '__all__'

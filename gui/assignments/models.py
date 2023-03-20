@@ -12,38 +12,34 @@ solution_maxlength = config_map['management']['database']['maxlength']['solution
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=64, blank=True)
+    name = models.CharField(max_length=64)
 
     class Meta:
         db_table = "tag"
 
-
-class Classification(models.Model):
-    effort = models.IntegerField(
-        validators=[
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ]
-    )
-    scope = models.IntegerField(
-        validators=[
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ]
-    )
-    tags = models.ManyToManyField(Tag)
-
-    class Meta:
-        db_table = "classification"
+    def __str__(self):
+        return self.name
 
 
 class Assignment(models.Model):
     semester = models.CharField(max_length=6)
     sheet = models.IntegerField()
     task = models.IntegerField()
-    subtask = models.CharField(max_length=8, blank=True)
+    subtask = models.CharField(max_length=8, default=None, blank=True, null=True)
     assignment = models.CharField(max_length=assignment_maxlength)
-    classification = models.OneToOneField(Classification, on_delete=models.CASCADE, null=True)
+    effort = models.IntegerField(default=None, blank=True, null=True,
+                                 validators=[
+                                     MaxValueValidator(5),
+                                     MinValueValidator(1)
+                                 ]
+                                 )
+    scope = models.IntegerField(default=None, blank=True, null=True,
+                                validators=[
+                                    MaxValueValidator(5),
+                                    MinValueValidator(1)
+                                ]
+                                )
+    tags = models.ManyToManyField(Tag)
 
     class Meta:
         db_table = "assignment"
