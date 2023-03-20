@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+{% block content %}
+
+    {% if is_update %}
+        <h1>Update tag</h1>
+    {% else %}
+        <h1>Create new tag</h1>
+    {% endif %}
+
+    <form action="" method="post" class="form">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% if is_update %}
+            <button type="submit" class="btn btn-primary" value="">Update</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary" value="">Create</button>
+        {% endif %}
+    </form>
+
+{% endblock %}

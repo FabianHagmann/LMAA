@@ -1,16 +1,23 @@
 {% extends 'base.html' %}
 
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
 {% block content %}
-<div class="row w-auto">
-    {% include 'assignments/assignment_list.html' %}
-</div>
-<div class="row w-auto">
-    <div class="col-4 px-0">
-        <a href="{% url 'assignments-create' %}">
-            <button class="btn btn-primary">Create new</button>
-        </a>
-        {#            {% bootstrap_button "Manage types" button_type='submit' button_class='btn-secondary' %}#}
+    <div class="row w-auto">
+        {% include 'assignments/assignment_list.html' %}
     </div>
-</div>
-</div>
+    <div class="row w-auto">
+        <div class="col-4 px-0">
+            <a href="{% url 'assignments-create' %}">
+                <button class="btn btn-primary">Create new</button>
+            </a>
+            <a href="{% url 'tags' %}">
+                <button class="btn btn-secondary">Manage tags</button>
+            </a>
+        </div>
+    </div>
+    </div>
 {% endblock %}

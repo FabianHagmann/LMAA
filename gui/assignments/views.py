@@ -2,10 +2,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import ListView, DeleteView, DetailView
+from django.views.generic import ListView, DeleteView
 
-from gui.assignments.forms import AssignmentsForm
-from gui.assignments.models import Assignment
+from gui.assignments.forms import AssignmentsForm, TagsForm
+from gui.assignments.models import Assignment, Tag
 
 
 class AssignmentsList(ListView):
@@ -82,3 +82,54 @@ class AssignmentsDelete(DeleteView):
     context_object_name = 'assignment'
     success_url = reverse_lazy('assignments')
     template_name = 'assignments/assignments_confirm_delete.html'
+
+
+class TagList(ListView):
+    model = Tag
+    paginate_by = 10
+    template_name = 'assignments/tags/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+
+class TagView(TagList):
+    template_name = 'assignments/tags/tag_main.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+
+def create_tag(request):
+    form = TagsForm()
+    if request.method == 'POST':
+        form = TagsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/assignments/tags')
+    context = {'form': form, 'is_update': False}
+    return render(request, 'assignments/tags/tag_form.html', context)
+
+
+def edit_tag(request, pk):
+    tag = Tag.objects.get(id=pk)
+    if request.method == 'POST':
+        form = TagsForm(request.POST, instance=tag)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/assignments/tags')
+    else:
+        form = TagsForm(instance=tag)
+
+    return render(request, 'assignments/tags/tag_form.html', {'id': pk, 'form': form, 'is_update': True})
+
+
+class TagsDelete(DeleteView):
+    model = Tag
+    context_object_name = 'tag'
+    success_url = reverse_lazy('tags')
+    template_name = 'assignments/tags/tag_confirm_delete.html'

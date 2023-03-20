@@ -1,0 +1,28 @@
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col" class="col-2">Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for tag in object_list %}
+        <tr>
+            <td class="col-2">{{ tag.name }}</td>
+            <td class="btn-group" role="group">
+                <a class="btn btn-primary btn-sm ms-1" href="{% url 'tags-edit' pk=tag.id %}">Edit</a>
+                <a class="btn btn-danger btn-sm ms-1" href="{% url 'tags-delete' pk=tag.id %}">Delete</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <th colspan="2">No tags yet.</th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
