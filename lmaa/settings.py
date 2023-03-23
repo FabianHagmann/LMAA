@@ -14,6 +14,8 @@ from pathlib import Path
 
 import yaml
 
+from config.logging_config import load_min_logging_level
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -193,3 +195,26 @@ BOOTSTRAP5 = {
 }
 
 SESSION_COOKIE_DOMAIN = '127.0.0.1'
+
+# Logging
+logging_level = load_min_logging_level(config_map['logging']['level'])
+logging_file = os.path.join(BASE_DIR, 'logs', config_map['logging']['filename'])
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': logging_file,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': logging_level,
+            'propagate': True,
+        },
+    },
+}
