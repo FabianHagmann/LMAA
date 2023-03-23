@@ -14,9 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
+from django_select2 import urls as django_select2_urls
 
 urlpatterns = [
     path('', include('gui.home.urls')),
     path('', include('gui.assignments.urls')),
-    path('', include('gui.communication.urls'))
+    path('', include('gui.communication.urls')),
+    path('select2/', include(django_select2_urls)),
 ]

@@ -16,7 +16,7 @@ class LanguageModelRequestFormView(FormView):
     success_url = '/communication/configure'
 
     def form_valid(self, form):
-        model = form.cleaned_data['models'].first()
+        model = form.cleaned_data['models']
         solution_request = SolutionRequest(model=model)
         solution_request.save()
 

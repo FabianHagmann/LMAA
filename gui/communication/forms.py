@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import Textarea
-from django_select2.forms import Select2MultipleWidget
+from django_select2.forms import Select2MultipleWidget, ModelSelect2Widget
 
 from gui.assignments.models import Assignment, Solution
 from gui.communication.models import LanguageModel, Property, PropertyType, SolutionRequest
@@ -17,14 +17,8 @@ class LanguageModelRequestForm(forms.Form):
             'data-placeholder': 'Choose assignments',
         }),
     )
-    models = forms.ModelMultipleChoiceField(
+    models = forms.ModelChoiceField(
         queryset=LanguageModel.objects.order_by('name'),
-        widget=Select2MultipleWidget(attrs={
-            'class': 'select2-bootstrap-5',
-            'data-bs-container': 'body',
-            'data-live-search': 'true',
-            'data-placeholder': 'Choose model',
-        }),
     )
 
 
@@ -51,5 +45,5 @@ class LanguageModelRequestSolutionEditForm(forms.Form):
 
         for solution in Solution.objects.filter(is_new=True):
             self.fields['sol' + str(solution.pk)] = forms.CharField(initial=solution.solution,
-                                                                  widget=Textarea(attrs={'rows': 10}, ),
-                                                                  label=solution.assignment.__str__())
+                                                                    widget=Textarea(attrs={'rows': 10}, ),
+                                                                    label=solution.assignment.__str__())
