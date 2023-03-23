@@ -24,14 +24,18 @@ class CommunicationConfig(AppConfig):
 
                 for prop in com.properties:
                     new_llm_prop = Property(name=prop.name, type=prop.type, mandatory=prop.mandatory,
-                                            language_model=new_llm)
+                                            language_model=new_llm, default=str(prop.default),
+                                            is_configuration=prop.configuration)
                     new_llm_prop.save()
             else:
                 existing_llm = LanguageModel.objects.filter(name=com.name)[0]
 
                 for prop in com.properties:
                     if Property.objects.filter(name=prop.name, language_model__name=existing_llm.name).exists():
-                        existing_llm_prop = Property.objects.filter(name=prop.name, language_model__name=existing_llm.name)[0]
+                        existing_llm_prop = Property.objects.filter(name=prop.name,
+                                                                    language_model__name=existing_llm.name,
+                                                                    default=str(prop.default),
+                                                                    is_configuration=prop.configuration)[0]
                         existing_llm_prop.type = prop.type
                         existing_llm_prop.mandatory = prop.mandatory
                         existing_llm_prop.save()

@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     'gui.home.apps.HomeConfig',
     'gui.assignments.apps.AssignmentsConfig',
     'gui.communication.apps.CommunicationConfig',
-    'django_select2',
     'bootstrap5',
+    'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -90,6 +90,8 @@ DATABASES = {
         'NAME': os.path.join(db_path, db_name),
     }
 }
+
+DJANGO_ALLOW_ASYNC_UNSAFE=True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
 

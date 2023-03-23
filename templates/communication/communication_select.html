@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+{% load bootstrap5_custom_tags %}
+
+{% block content %}
+
+    <h1 class="row">Generate solution</h1>
+    <form action="" method="post" class="form row">
+        {% csrf_token %}
+        <div class="col-6 px-0">
+            {% bootstrap_form_group form.assignments addtl_classes%}
+        </div>
+        <div class="col-6 ps-0">
+            {% bootstrap_form_group form.models %}
+        </div>
+        <button type="submit" class="btn btn-primary" value="">Select</button>
+    </form>
+
+{% endblock %}

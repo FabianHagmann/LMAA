@@ -37,6 +37,7 @@ class AssignmentsForm(ModelForm):
         self.fields['subtask'].required = False
         self.fields['effort'].required = False
         self.fields['scope'].required = False
+        self.fields['tags'].required = False
 
 
 class TagsForm(ModelForm):

@@ -16,15 +16,15 @@ class OpenAICommunicatorImpl(Communicator):
     """
 
     properties = [
-        CommunicatorProperty('prompt', PropertyType.str, True, ""),
-        CommunicatorProperty('model', PropertyType.str, True, ""),
-        CommunicatorProperty('temperature', PropertyType.float, False, 0.7),
-        CommunicatorProperty('max_tokens', PropertyType.int, False, 256),
-        CommunicatorProperty('top_p', PropertyType.float, False, 1),
-        CommunicatorProperty('frequency_penalty', PropertyType.float, False, 0),
-        CommunicatorProperty('presence_penalty', PropertyType.float, False, 0),
+        CommunicatorProperty('prompt', PropertyType.str, True, "", False),
+        CommunicatorProperty('model', PropertyType.str, True, "", True),
+        CommunicatorProperty('temperature', PropertyType.float, False, 0.7, True),
+        CommunicatorProperty('max_tokens', PropertyType.int, False, 256, True),
+        CommunicatorProperty('top_p', PropertyType.float, False, 1, True),
+        CommunicatorProperty('frequency_penalty', PropertyType.float, False, 0, True),
+        CommunicatorProperty('presence_penalty', PropertyType.float, False, 0, True),
     ]
-    name = 'OpenAI'
+    name = 'OpenAI Completion [OUTDATED]'
 
     def __init__(self):
         config.load_logging_config()
@@ -38,6 +38,7 @@ class OpenAICommunicatorImpl(Communicator):
 
         completion = None
         request_count = 0
+        OpenAICommunicatorImpl.__fetch_api_key__()
 
         # send request
         try:
@@ -64,7 +65,7 @@ class OpenAICommunicatorImpl(Communicator):
         for parameter_key in request_parameters.keys():
             exists = False
             for prop in self.properties:
-                if parameter_key == prop.name and type(request_parameters.get(parameter_key)) == prop.type.name:
+                if parameter_key == prop.name and type(request_parameters.get(parameter_key)).__name__ == prop.type.name:
                     exists = True
             if exists is False:
                 logging.error("Parameter validation failed: Unexpected parameter \'" + parameter_key + "\' found")
@@ -75,7 +76,7 @@ class OpenAICommunicatorImpl(Communicator):
             if prop.mandatory is not True:
                 continue
             if request_parameters.keys().__contains__(prop.name) and type(
-                    request_parameters.get(prop.name)) == prop.type:
+                    request_parameters.get(prop.name)).__name__ == prop.type.name:
                 continue
             else:
                 return False

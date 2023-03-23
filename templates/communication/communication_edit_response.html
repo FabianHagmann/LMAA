@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+{% load bootstrap5_custom_tags %}
+
+{% block content %}
+
+    <h1 class="row">Edit the response</h1>
+    <form action="" method="post" class="form">
+        {% csrf_token %}
+        {% for field in form %}
+             {% bootstrap_form_group field%}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" value="">Edit</button>
+    </form>
+
+{% endblock %}

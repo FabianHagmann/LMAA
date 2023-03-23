@@ -18,6 +18,6 @@ print("---------------------------------")
 print("Communicator: " + impl_name)
 print("---------------------------------")
 
-response = impl.send_request(request_parameters)
+response = impl.select_communication_content(request_parameters)
 print(response.payload)
 

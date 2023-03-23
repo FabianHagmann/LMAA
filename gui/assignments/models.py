@@ -1,3 +1,4 @@
+import json
 import os
 
 import yaml
@@ -19,6 +20,9 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Assignment(models.Model):
@@ -47,6 +51,9 @@ class Assignment(models.Model):
     def __str__(self):
         return self.semester + '-AB' + str(self.sheet) + '-' + str(self.task) \
             + (self.subtask if self.subtask is not None else '')
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Testcase(models.Model):
@@ -82,6 +89,7 @@ class Solution(models.Model):
     solution = models.CharField(max_length=solution_maxlength, blank=True)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     testresults = models.ManyToManyField(Testcase, through='Testresult')
+    is_new = models.BooleanField(default=False)
 
     class Meta:
         db_table = "solution"

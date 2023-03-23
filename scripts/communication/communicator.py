@@ -40,12 +40,13 @@ class PropertyType(IntEnum):
 
 
 class CommunicatorProperty:
-    def __init__(self, name: str, type: PropertyType, mandatory, default):
+    def __init__(self, name: str, type: PropertyType, mandatory, default, configuration):
         super().__init__()
         self.name = name
         self.type = type
         self.mandatory = mandatory
         self.default = default
+        self.configuration = configuration
 
     @staticmethod
     def fetch_default_value(props: list, searched_name: str) -> str | int | float:

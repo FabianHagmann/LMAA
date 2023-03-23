@@ -63,6 +63,6 @@ class CommunicatorManager:
         for name, object in impl_module_classes:
             if not name.__contains__('Impl'):
                 continue
-            impl_class = object
+            impl_class = object.__new__(object)
 
         return impl_class

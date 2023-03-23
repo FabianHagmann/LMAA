@@ -13,7 +13,7 @@ management:
 # Communicator Configuration
 communicator:
   openai-completion:
-    apikey: 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
+    apikey: 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
 
 # Additional configuration
 logging:

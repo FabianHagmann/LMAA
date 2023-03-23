@@ -1,4 +1,4 @@
-from scripts.communication.impl.communicator_openai_completion import OpenAICommunicatorImpl
+from scripts.communication.impl.communicator_openai_completion_OUTDATED import OpenAICommunicatorImpl
 
 # instantiate communicator
 com = OpenAICommunicatorImpl()

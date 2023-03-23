@@ -1,7 +1,11 @@
 from django.urls import path
 
-from .views import CommunicationView
+from gui.communication.views import LanguageModelRequestFormView, LanguageModelRequestConfigurationFormView, \
+    LanguageModelRequestSolutionEditFormView
 
 urlpatterns = [
-    path('communication/', CommunicationView.as_view(), name='communication')
+    path('communication/', LanguageModelRequestFormView.as_view(), name='communication'),
+    path('communication/configure', LanguageModelRequestConfigurationFormView.as_view(),
+         name='communication-configure'),
+    path('communication/edit', LanguageModelRequestSolutionEditFormView.as_view(), name='communication-edit'),
 ]
