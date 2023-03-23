@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'gui.home.apps.HomeConfig',
     'gui.assignments.apps.AssignmentsConfig',
     'gui.communication.apps.CommunicationConfig',
-    'bootstrap5',
+    "django_bootstrap5",
     'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,8 +62,7 @@ ROOT_URLCONF = 'lmaa.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,7 +92,7 @@ DATABASES = {
     }
 }
 
-DJANGO_ALLOW_ASYNC_UNSAFE=True
+DJANGO_ALLOW_ASYNC_UNSAFE = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
 
@@ -209,10 +208,13 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': logging_file,
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': logging_level,
             'propagate': True,
         },

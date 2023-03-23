@@ -1,22 +1,19 @@
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
-
 <table class="table table-striped">
     <thead>
     <tr>
-        <th scope="col" class="col-2">Name</th>
-        <th>Actions</th>
+        <th class="col-4">Name</th>
+        <th class="col-1">Actions</th>
     </tr>
     </thead>
     <tbody>
     {% for tag in object_list %}
         <tr>
-            <td class="col-2">{{ tag.name }}</td>
-            <td class="btn-group" role="group">
-                <a class="btn btn-primary btn-sm ms-1" href="{% url 'tags-edit' pk=tag.id %}">Edit</a>
-                <a class="btn btn-danger btn-sm ms-1" href="{% url 'tags-delete' pk=tag.id %}">Delete</a>
+            <td class="col-4">{{ tag.name }}</td>
+            <td class="col-1">
+                <div class="btn-group" role="group">
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'tags-edit' pk=tag.id %}">Edit</a>
+                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'tags-delete' pk=tag.id %}">Delete</a>
+                </div>
             </td>
         </tr>
     {% empty %}

@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
 {% load bootstrap5_custom_tags %}
 
 {% block content %}
 
     <h1 class="row">Configure request</h1>
-    <form action="" method="post" class="form">
-        {% csrf_token %}
-        {% for field in form %}
-             {% bootstrap_form_group field%}
-        {% endfor %}
-        <button type="submit" class="btn btn-primary" value="">Send</button>
+    <form action="" method="post" class="form ms-0">
+        <div class="row ps-0">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="ps-0">
+                    {% bootstrap_form_group field %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row ps-0 mt-3">
+            <button type="submit" class="btn btn-primary col-1" value="">Send</button>
+        </div>
+
     </form>
 
 {% endblock %}

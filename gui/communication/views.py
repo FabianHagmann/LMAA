@@ -13,7 +13,7 @@ from scripts.communication import communication_manager as manager
 class LanguageModelRequestFormView(FormView):
     template_name = 'communication/communication_select.html'
     form_class = LanguageModelRequestForm
-    success_url = '/communication/configure'
+    success_url = '/communication/new/configure'
 
     def form_valid(self, form):
         model = form.cleaned_data['models']
@@ -30,7 +30,7 @@ class LanguageModelRequestFormView(FormView):
 class LanguageModelRequestConfigurationFormView(FormView):
     form_class = LanguageModelRequestConfigurationForm
     template_name = 'communication/communication_configure.html'
-    success_url = '/communication/edit'
+    success_url = '/communication/new/edit'
 
     def form_valid(self, form):
         solution_request = SolutionRequest.objects.order_by('timestamp').first()
@@ -49,7 +49,7 @@ class LanguageModelRequestConfigurationFormView(FormView):
 class LanguageModelRequestSolutionEditFormView(FormView):
     form_class = LanguageModelRequestSolutionEditForm
     template_name = 'communication/communication_edit_response.html'
-    success_url = '/communication'
+    success_url = '/communication/new'
 
     def form_invalid(self, form):
         print('I am invalid')

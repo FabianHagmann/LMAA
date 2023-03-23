@@ -1,8 +1,4 @@
 {% load static %}
-{% load bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
 
 <nav class="navbar navbar-expand-lg bg-dark mb-3" data-bs-theme="dark">
     <div class="container-fluid">
@@ -21,8 +17,18 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" aria-current="page" href="/assignments">Assignments</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" aria-current="page" href="/communication">Communication</a>
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link text-white" aria-current="page" href="/communication">Communication</a>#}
+                {#                </li>#}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="/communication/new" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Communication
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item text-white" href="/communication/new">New request</a></li>
+                        <li><a class="dropdown-item text-white" href="/communication/status">Status</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" aria-current="page" href="/testing">Testing</a>
