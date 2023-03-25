@@ -1,13 +1,12 @@
 from django import forms
-from django.utils.datetime_safe import datetime
+from django.shortcuts import render
 from django.views.generic import FormView
 
 from gui.assignments.models import Assignment, Solution
 from gui.communication.forms import LanguageModelRequestForm, LanguageModelRequestConfigurationForm, \
     LanguageModelRequestSolutionEditForm
 from gui.communication.models import Property, PropertyType, SolutionRequest, SolutionRequestParameter, \
-    SolutionRequestStatus
-from scripts.communication import communication_manager as manager
+    SolutionRequestStatus, SolutionRequestThread
 
 
 class LanguageModelRequestFormView(FormView):
@@ -30,7 +29,7 @@ class LanguageModelRequestFormView(FormView):
 class LanguageModelRequestConfigurationFormView(FormView):
     form_class = LanguageModelRequestConfigurationForm
     template_name = 'communication/communication_configure.html'
-    success_url = '/communication/new/edit'
+    success_url = '/communication/new/success'
 
     def form_valid(self, form):
         solution_request = SolutionRequest.objects.order_by('timestamp').first()
@@ -41,19 +40,21 @@ class LanguageModelRequestConfigurationFormView(FormView):
         solution_request.status = SolutionRequestStatus.ready
         solution_request.save()
 
-        __queue_solution_request__(solution_request)
+        # __queue_solution_request__(solution_request)
+        solution_request = SolutionRequest.objects.get(pk=solution_request.pk)
+        SolutionRequestThread(solution_request).start()
 
         return super().form_valid(form)
+
+
+def communication_success_view(request):
+    return render(request, 'communication/communication_success.html', context={})
 
 
 class LanguageModelRequestSolutionEditFormView(FormView):
     form_class = LanguageModelRequestSolutionEditForm
     template_name = 'communication/communication_edit_response.html'
-    success_url = '/communication/new'
-
-    def form_invalid(self, form):
-        print('I am invalid')
-        return super().form_invalid(form)
+    success_url = '/communication/status'
 
     def form_valid(self, form):
         for field in form.fields:
@@ -63,6 +64,14 @@ class LanguageModelRequestSolutionEditFormView(FormView):
             sol.save()
 
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        running_requests = SolutionRequest.objects.filter(status=SolutionRequestStatus.running).all()
+        context["running_requests"] = running_requests
+
+        return context
 
 
 def __evaluate_configuration_form__(model, form):
@@ -93,44 +102,3 @@ def __build_configure_form__(model, is_get):
                 form.fields[prop.name] = forms.CharField(required=prop.mandatory, initial=prop.default)
 
     return form
-
-
-def __queue_solution_request__(instance: SolutionRequest):
-    # get selected communicator
-    man = manager.CommunicatorManager()
-    selected_communicator = None
-    for communicator in man.get_implementations():
-        if communicator.name == instance.model.name:
-            selected_communicator = communicator
-
-    if selected_communicator is None:
-        print("Error executing scheduled solution_request: model not found")
-        # todo: delete solution_request
-
-    # add solution_request parameters to properties list
-    request_parameters = {}
-    for prop in Property.objects.filter(language_model=instance.model):
-        for param in instance.parameters.all():
-            if prop.name == param.key:
-                match prop.type:
-                    case 1:
-                        request_parameters.__setitem__(param.key, int(param.value))
-                    case 2:
-                        request_parameters.__setitem__(param.key, float(param.value))
-                    case _:
-                        request_parameters.__setitem__(param.key, param.value)
-                continue
-
-    # send request for every assignment in solution_request
-    for ass in instance.assignments.all():
-        request_parameters.__setitem__('prompt', ass.assignment)
-        communication_response = selected_communicator.send_request(request_parameters=request_parameters)
-        if communication_response.code == 200:
-            sol = Solution(timestamp=datetime.now(), communicator=instance.model.name,
-                           solution=communication_response.payload,
-                           assignment=ass, is_new=True)
-            sol.save()
-        # else:
-        # todo: handle error
-
-    instance.delete()
