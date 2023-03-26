@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django import forms
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.datetime_safe import datetime
 from django.views.generic import FormView
 
 from gui.assignments.models import Assignment, Solution
@@ -90,6 +93,11 @@ class LanguageModelRequestSolutionEditFormView(FormView):
 
         running_requests = SolutionRequest.objects.filter(status=SolutionRequestStatus.running).all()
         context["running_requests"] = running_requests
+
+        recent_time_window = datetime.now() - timedelta(hours=3)
+        recently_failed_requests = SolutionRequest.objects.filter(status=SolutionRequestStatus.failed,
+                                                                  timestamp__gte=recent_time_window).all()
+        context["recently_failed"] = recently_failed_requests
 
         return context
 

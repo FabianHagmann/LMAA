@@ -25,6 +25,7 @@ class SolutionRequestStatus(IntEnum):
     ready = 2
     running = 3
     completed = 4
+    failed = 5
 
     @classmethod
     def choices(cls):
@@ -107,9 +108,11 @@ class SolutionRequestThread(threading.Thread):
             if communicator.name == self.instance.model.name:
                 selected_communicator = communicator
 
+        # handle selected communicator not found
         if selected_communicator is None:
-            print("Error executing scheduled solution_request: model not found")
-            # todo: delete solution_request
+            self.instance.status = SolutionRequestStatus.failed
+            self.instance.save()
+            return
 
         # add solution_request parameters to properties list
         request_parameters = {}
@@ -135,8 +138,10 @@ class SolutionRequestThread(threading.Thread):
                                    solution=communication_response.payload,
                                    assignment=ass, is_new=True)
                     sol.save()
-                # else:
-                # todo: handle error
+                else:
+                    self.instance.status = SolutionRequestStatus.failed
+                    self.instance.save()
+                    return
 
         self.instance.status = SolutionRequestStatus.completed
         self.instance.save()

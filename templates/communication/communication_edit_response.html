@@ -26,6 +26,28 @@
         </ul>
     {% endif %}
 
+    {% if recently_failed|length > 0 %}
+        <h3 class="row mt-3">Recently failed requests:</h3>
+        <ul class="row list-group me-0">
+            {% for req in recently_failed %}
+                <li class="list-group-item">
+                    <div class="">
+                        <div class="fw-bold">{{ req.model }}
+                        {% if req.repeats > 1 %}
+                            ({{ req.repeats }}x)
+                        {% endif %}
+                        </div>
+                        <div class="ms-4">
+                            {% for ass in req.assignments.all %}
+                                {{ ass }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     {% if form.fields|length > 0 %}
         <h3 class="row mt-3">Edit newly generated solutions:</h3>
         <form action="" method="post" class="form">
