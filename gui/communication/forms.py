@@ -23,13 +23,14 @@ class LanguageModelRequestForm(forms.Form):
 
 
 class LanguageModelRequestConfigurationForm(forms.Form):
+    repeats = forms.IntegerField(min_value=1, max_value=5, initial=1, required=True)
 
     def __init__(self, *args, **kwargs):
+        request_pk = kwargs.pop('req', None)
         super().__init__(*args, **kwargs)
 
-        if SolutionRequest.objects.order_by('timestamp').exists():
-            for prop in Property.objects.filter(
-                    language_model__name=SolutionRequest.objects.order_by('timestamp').first().model.name):
+        if SolutionRequest.objects.get(pk=request_pk):
+            for prop in Property.objects.filter(language_model=SolutionRequest.objects.get(pk=request_pk).model):
                 if prop.is_configuration:
                     if prop.type == PropertyType.int:
                         self.fields[prop.name] = forms.IntegerField(required=prop.mandatory, initial=int(prop.default))

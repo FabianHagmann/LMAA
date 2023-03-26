@@ -1,11 +1,9 @@
 import json
 import threading
 from enum import IntEnum
-from typing import Callable, Any, Iterable, Mapping
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.datetime_safe import datetime
 
 from gui.assignments.models import Assignment, Solution
@@ -78,6 +76,11 @@ class SolutionRequest(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     parameters = models.ManyToManyField(SolutionRequestParameter)
     status = models.IntegerField(choices=SolutionRequestStatus.choices(), default=SolutionRequestStatus.not_ready)
+    repeats = models.IntegerField(default=1,
+                                  validators=[
+                                      MaxValueValidator(5),
+                                      MinValueValidator(1)
+                                  ])
 
     class Meta:
         db_table = "solution_request"
@@ -124,15 +127,16 @@ class SolutionRequestThread(threading.Thread):
 
         # send request for every assignment in solution_request
         for ass in self.instance.assignments.all():
-            request_parameters.__setitem__('prompt', ass.assignment)
-            communication_response = selected_communicator.send_request(request_parameters=request_parameters)
-            if communication_response.code == 200:
-                sol = Solution(timestamp=datetime.now(), communicator=self.instance.model.name,
-                               solution=communication_response.payload,
-                               assignment=ass, is_new=True)
-                sol.save()
-            # else:
-            # todo: handle error
+            for i in range(self.instance.repeats):
+                request_parameters.__setitem__('prompt', ass.assignment)
+                communication_response = selected_communicator.send_request(request_parameters=request_parameters)
+                if communication_response.code == 200:
+                    sol = Solution(timestamp=datetime.now(), communicator=self.instance.model.name,
+                                   solution=communication_response.payload,
+                                   assignment=ass, is_new=True)
+                    sol.save()
+                # else:
+                # todo: handle error
 
         self.instance.status = SolutionRequestStatus.completed
         self.instance.save()

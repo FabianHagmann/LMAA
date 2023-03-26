@@ -6,7 +6,7 @@ from gui.communication.views import LanguageModelRequestFormView, LanguageModelR
 
 urlpatterns = [
     path('communication/new/', LanguageModelRequestFormView.as_view(), name='communication'),
-    path('communication/new/configure', LanguageModelRequestConfigurationFormView.as_view(),
+    path('communication/new/<int:req>/configure', LanguageModelRequestConfigurationFormView.as_view(),
          name='communication-configure'),
     path('communication/new/success', views.communication_success_view,
          name='communication-success'),

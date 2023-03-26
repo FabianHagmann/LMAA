@@ -1,5 +1,6 @@
 from django import forms
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import FormView
 
 from gui.assignments.models import Assignment, Solution
@@ -12,18 +13,29 @@ from gui.communication.models import Property, PropertyType, SolutionRequest, So
 class LanguageModelRequestFormView(FormView):
     template_name = 'communication/communication_select.html'
     form_class = LanguageModelRequestForm
-    success_url = '/communication/new/configure'
+
+    def __init__(self, **kwargs):
+        super(FormView, self).__init__(**kwargs)
+        self.success_pk = None
 
     def form_valid(self, form):
         model = form.cleaned_data['models']
         solution_request = SolutionRequest(model=model)
         solution_request.save()
 
-        solution_request = SolutionRequest.objects.order_by('timestamp').first()
         for ass in form.cleaned_data['assignments']:
             solution_request.assignments.add(Assignment.objects.get(id=ass.id))
         solution_request.save()
+        self.success_pk = solution_request.id
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            'communication-configure',
+            kwargs={
+                'req': self.success_pk
+            }
+        )
 
 
 class LanguageModelRequestConfigurationFormView(FormView):
@@ -31,20 +43,28 @@ class LanguageModelRequestConfigurationFormView(FormView):
     template_name = 'communication/communication_configure.html'
     success_url = '/communication/new/success'
 
-    def form_valid(self, form):
-        solution_request = SolutionRequest.objects.order_by('timestamp').first()
-        params = __evaluate_configuration_form__(solution_request.model, form)
+    def form_valid(self, form, *args, **kwargs):
+        request_pk = self.get_form_kwargs().get('req')
+        print(request_pk)
+        solution_request = SolutionRequest.objects.get(pk=request_pk)
+        params = __evaluate_configuration_parameters__(solution_request.model, form)
         for param in params:
             param.save()
             solution_request.parameters.add(param)
+
+        solution_request.repeats = form.cleaned_data['repeats']
         solution_request.status = SolutionRequestStatus.ready
         solution_request.save()
 
-        # __queue_solution_request__(solution_request)
         solution_request = SolutionRequest.objects.get(pk=solution_request.pk)
         SolutionRequestThread(solution_request).start()
 
         return super().form_valid(form)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(LanguageModelRequestConfigurationFormView, self).get_form_kwargs()
+        kwargs.__setitem__('req', self.kwargs['req'])
+        return kwargs
 
 
 def communication_success_view(request):
@@ -74,7 +94,7 @@ class LanguageModelRequestSolutionEditFormView(FormView):
         return context
 
 
-def __evaluate_configuration_form__(model, form):
+def __evaluate_configuration_parameters__(model, form):
     params = []
     for prop in Property.objects.filter(language_model__name=model.name):
         if prop.is_configuration:
