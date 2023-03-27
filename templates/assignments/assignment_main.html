@@ -5,11 +5,34 @@
     <div class="row w-auto">
         {% include 'assignments/assignment_list.html' %}
     </div>
-    <div class="row w-auto">
-        <div class="col-4 px-0">
-            <a href="{% url 'assignments-create' %}" class="btn btn-primary" role="button">{% bs_icon 'plus-lg' extra_classes="bi-valign-middle"%}Create new</a>
-            <a href="{% url 'tags' %}" class="btn btn-secondary" role="button">{% bs_icon 'gear' extra_classes="bi-valign-middle"%}Manage tags</a>
+
+    <div class="row d-flex justify-content-center">
+        <div class="pagination col-auto">
+            <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-secondary btn-sm" href="?page=1">&laquo; first</a>
+                    <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}">&lsaquo; {{ page_obj.previous_page_number }}</a>
+                {% endif %}
+
+                <span class="current btn btn-secondary btn-sm" id="current-page"
+                      style="background-color: #6c757d !important; border-color: #6c757d !important;color: #fff !important;">
+                    {{ page_obj.number }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }} &rsaquo;</a>
+                    <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    <div class="row w-auto mt-3">
+        <div class="col-4 px-0">
+            <a href="{% url 'assignments-create' %}" class="btn btn-primary"
+               role="button">{% bs_icon 'plus-lg' extra_classes="bi-valign-middle" %}Create new</a>
+            <a href="{% url 'tags' %}" class="btn btn-secondary"
+               role="button">{% bs_icon 'gear' extra_classes="bi-valign-middle" %}Manage tags</a>
+        </div>
     </div>
 {% endblock %}
