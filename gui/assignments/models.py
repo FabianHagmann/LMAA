@@ -1,15 +1,29 @@
-import json
 import os
 
 import yaml
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from lmaa.settings import BASE_DIR
 
 config_stream = open(os.path.join(BASE_DIR, 'config', 'system_config.yaml'), 'r')
 config_map = yaml.safe_load(config_stream)
 assignment_maxlength = config_map['management']['database']['maxlength']['assignment']
 solution_maxlength = config_map['management']['database']['maxlength']['solution']
+
+"""
+Contains all models required for assignments-pages
+<ul>
+    <li>Tag</li>
+    <li>Assignment</li>
+    <li>Testcase</li>
+    <li>CompilesTestcase</li>
+    <li>ContainsTestcase</li>
+    <li>UnitTestcase</li>
+    <li>Solution</li>
+    <li>Testresult</li>
+</ul>
+"""
 
 
 class Tag(models.Model):
@@ -20,9 +34,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-    def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Assignment(models.Model):
@@ -51,9 +62,6 @@ class Assignment(models.Model):
     def __str__(self):
         return self.semester + '-AB' + str(self.sheet) + '-' + str(self.task) \
             + (self.subtask if self.subtask is not None else '')
-
-    def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Testcase(models.Model):

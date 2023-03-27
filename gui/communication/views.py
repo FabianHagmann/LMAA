@@ -10,10 +10,18 @@ from gui.assignments.models import Assignment, Solution
 from gui.communication.forms import LanguageModelRequestForm, LanguageModelRequestConfigurationForm, \
     LanguageModelRequestSolutionEditForm
 from gui.communication.models import Property, PropertyType, SolutionRequest, SolutionRequestParameter, \
-    SolutionRequestStatus, SolutionRequestThread
+    SolutionRequestStatus
+from gui.communication.tasks import SolutionRequestThread
 
 
 class LanguageModelRequestFormView(FormView):
+    """
+    FormView for displaying basic solution-request parameters (Assignments [multiselect], Model [singleselect])
+
+    Results are stores as SolutionRequest with status=1 (not_ready = default).
+    Success redirect to Configuration-View
+    """
+
     template_name = 'communication/communication_select.html'
     form_class = LanguageModelRequestForm
 
@@ -42,13 +50,20 @@ class LanguageModelRequestFormView(FormView):
 
 
 class LanguageModelRequestConfigurationFormView(FormView):
+    """
+    FormView view for inputting the requested models parameters dynamically.
+
+    Updates the existing solution request with the entered data and updates the status to 2 (ready).
+    Starts a SolutionRequestThread with the resulting SolutionRequest.
+    Success redirect to static SuccessPage
+    """
+
     form_class = LanguageModelRequestConfigurationForm
     template_name = 'communication/communication_configure.html'
     success_url = '/communication/new/success'
 
     def form_valid(self, form, *args, **kwargs):
         request_pk = self.get_form_kwargs().get('req')
-        print(request_pk)
         solution_request = SolutionRequest.objects.get(pk=request_pk)
         params = __evaluate_configuration_parameters__(solution_request.model, form)
         for param in params:
@@ -71,10 +86,21 @@ class LanguageModelRequestConfigurationFormView(FormView):
 
 
 def communication_success_view(request):
+    """
+    Static success page for confirming the started SolutionRequestThread
+    """
     return render(request, 'communication/communication_success.html', context={})
 
 
 class LanguageModelRequestSolutionEditFormView(FormView):
+    """
+    FormView for displaying the current state of created Solutionrequests.
+    Displays:
+    - currently running solutionrequests
+    - recently failed solutionrequests
+    - newly generated solutions (for edit by the user)
+    """
+
     form_class = LanguageModelRequestSolutionEditForm
     template_name = 'communication/communication_edit_response.html'
     success_url = '/communication/status'
@@ -103,30 +129,16 @@ class LanguageModelRequestSolutionEditFormView(FormView):
 
 
 def __evaluate_configuration_parameters__(model, form):
+    """
+    Evaluate the dynamically created LanguageModelRequestConfigurationForm
+    :param model: requested language model
+    :param form: LanguageModelRequestConfigurationForm with parameters for the requested language model
+    :return: list of parameters contained in the form
+    """
+
     params = []
     for prop in Property.objects.filter(language_model__name=model.name):
         if prop.is_configuration:
             param = SolutionRequestParameter(key=prop.name, value=form.cleaned_data[prop.name])
             params.append(param)
     return params
-
-
-def __build_configure_form__(model, is_get):
-    if is_get:
-        form = forms.Form()
-    else:
-        form = forms.Form('POST')
-
-    if model is None:
-        return form
-
-    for prop in Property.objects.filter(language_model__name=model.name):
-        if prop.is_configuration:
-            if prop.type == PropertyType.int:
-                form.fields[prop.name] = forms.IntegerField(required=prop.mandatory, initial=int(prop.default))
-            elif prop.type == PropertyType.float:
-                form.fields[prop.name] = forms.FloatField(required=prop.mandatory, initial=float(prop.default))
-            else:
-                form.fields[prop.name] = forms.CharField(required=prop.mandatory, initial=prop.default)
-
-    return form

@@ -14,6 +14,11 @@ assignment_maxlength = config_map['management']['database']['maxlength']['assign
 
 
 class AssignmentsForm(ModelForm):
+    """
+    ModelForm for all fields of 'Assignment'. Contains all fields of Assignment including foreign keys and classification
+    """
+
+    # multiselect for Tags
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all().order_by('name'),
         widget=Select2MultipleWidget(attrs={
@@ -33,6 +38,9 @@ class AssignmentsForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """
+        Init method. Sets optional fields to not-required
+        """
         super(AssignmentsForm, self).__init__(*args, **kwargs)
         self.fields['subtask'].required = False
         self.fields['effort'].required = False
@@ -41,10 +49,17 @@ class AssignmentsForm(ModelForm):
 
 
 class TagsForm(ModelForm):
+    """
+    ModelForm for all fields of Tags
+    """
+
     class Meta:
         model = Tag
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
+        """
+        Init method. Sets mandatory fields to required
+        """
         super(TagsForm, self).__init__(*args, **kwargs)
         self.fields['name'].required = True

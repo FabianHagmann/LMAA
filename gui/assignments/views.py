@@ -9,6 +9,11 @@ from gui.assignments.models import Assignment, Tag
 
 
 class AssignmentsList(ListView):
+    """
+    Paginated ListView for displaying assignments. Displays assignments ordered by semester-sheet-task-subtask at a
+    pagination size of 10
+    """
+
     model = Assignment
     paginate_by = 10
 
@@ -18,6 +23,10 @@ class AssignmentsList(ListView):
 
 
 class AssignmentsView(AssignmentsList):
+    """
+    Overview view for assignments. Displays AssignmentsList and options for manipulating assignments and tags
+    """
+
     template_name = 'assignments/assignment_main.html'
 
     def get_context_data(self, **kwargs):
@@ -26,6 +35,10 @@ class AssignmentsView(AssignmentsList):
 
 
 def create_assignment(request):
+    """
+    View for creating assignments. Renders AssignmentsForm for new entries
+    """
+
     form = AssignmentsForm()
     if request.method == 'POST':
         form = AssignmentsForm(request.POST)
@@ -37,6 +50,11 @@ def create_assignment(request):
 
 
 def edit_assignment(request, pk):
+    """
+    View for updating assignments. Renders AssignmentsForm for existing entries
+    :param pk: primary key of the currently edited assignment
+    """
+
     assignment = Assignment.objects.get(id=pk)
     if request.method == 'POST':
         form = AssignmentsForm(request.POST, instance=assignment)
@@ -51,6 +69,11 @@ def edit_assignment(request, pk):
 
 
 def assignment_details(request, pk):
+    """
+    View for viewing assignment details. Renders AssignmentsForm, as a disabled form, for existing entries
+    :param pk: primary key of the currently edited assignment
+    """
+
     assignment = Assignment.objects.get(id=pk)
     if request.method == 'POST':
         form = AssignmentsForm(request.POST, instance=assignment)
@@ -82,6 +105,10 @@ def assignment_details(request, pk):
 
 
 class AssignmentsDelete(DeleteView):
+    """
+    Renders a DeleteView for assignments
+    """
+
     model = Assignment
     context_object_name = 'assignment'
     success_url = reverse_lazy('assignments')
@@ -89,11 +116,19 @@ class AssignmentsDelete(DeleteView):
 
 
 class TagList(ListView):
+    """
+    View for displaying all existing tags
+    """
+
     model = Tag
     queryset = Tag.objects.order_by('name')
 
 
 class TagView(TagList):
+    """
+    View for displaying the TagList and options for manipulating and managing tags.
+    """
+
     template_name = 'assignments/tags/tag_main.html'
 
     def get_context_data(self, **kwargs):
@@ -103,6 +138,10 @@ class TagView(TagList):
 
 
 def create_tag(request):
+    """
+    View for creating tags. Renders TagsForm for new entries
+    """
+
     form = TagsForm()
     if request.method == 'POST':
         form = TagsForm(request.POST)
@@ -114,6 +153,10 @@ def create_tag(request):
 
 
 def edit_tag(request, pk):
+    """
+    View for updating tags. Renders TagsForm for existing entries
+    """
+
     tag = Tag.objects.get(id=pk)
     if request.method == 'POST':
         form = TagsForm(request.POST, instance=tag)
@@ -127,6 +170,10 @@ def edit_tag(request, pk):
 
 
 class TagsDelete(DeleteView):
+    """
+    Renders a DeleteView for tags
+    """
+
     model = Tag
     context_object_name = 'tag'
     success_url = reverse_lazy('tags')
