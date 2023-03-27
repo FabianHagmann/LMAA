@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% load bootstrap5_custom_tags %}
 
@@ -29,12 +30,14 @@
 
         <h3 class="mt-5 mb-3">Actions</h3>
         {% if is_update %}
-            <button type="submit" class="btn btn-primary" value="">Update</button>
+            <button type="submit" class="btn btn-success" value="">{% bs_icon 'check-lg' extra_classes="bi-valign-default"%}Update</button>
+            <a class="btn btn-outline-secondary ms-1" href="{% url 'assignments-details' pk=id %}">Cancel</a>
         {% elif is_disabled %}
-            <a class="btn btn-primary" href="{% url 'assignments-edit' pk=id %}">Edit</a>
-            <a class="btn btn-danger ms-1" href="{% url 'assignments-delete' pk=id %}">Delete</a>
+            <a class="btn btn-primary" href="{% url 'assignments-edit' pk=id %}">{% bs_icon 'pencil' extra_classes="bi-valign-default"%}Edit</a>
+            <a class="btn btn-danger ms-1" href="{% url 'assignments-delete' pk=id %}">{% bs_icon 'trash3' extra_classes="bi-valign-default"%}Delete</a>
         {% else %}
-            <button type="submit" class="btn btn-primary" value="">Create</button>
+            <button type="submit" class="btn btn-success" value="">{% bs_icon 'check-lg' extra_classes="bi-valign-default"%}Create</button>
+            <a class="btn btn-outline-secondary" href="{% url 'assignments' %}">Cancel</a>
         {% endif %}
     </form>
 {% endblock %}

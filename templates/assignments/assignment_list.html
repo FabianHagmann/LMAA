@@ -1,3 +1,5 @@
+{% load bootstrap_icons %}
+
 <table class="table table-striped">
     <thead>
     <tr>
@@ -18,10 +20,10 @@
             <td class="col-1" >
                 <div class="btn-group" role="group">
                     <a class="btn btn-success btn-sm"
-                       href="{% url 'assignments-details' pk=assignment.id %}">View</a>
-                    <a class="btn btn-primary btn-sm" href="{% url 'assignments-edit' pk=assignment.id %}">Edit</a>
+                       href="{% url 'assignments-details' pk=assignment.id %}">{% bs_icon 'search' extra_classes="bi-valign-text-bottom"%}</a>
+                    <a class="btn btn-primary btn-sm" href="{% url 'assignments-edit' pk=assignment.id %}">{% bs_icon 'pencil' extra_classes="bi-valign-text-bottom" %}</a>
                     <a class="btn btn-danger btn-sm"
-                       href="{% url 'assignments-delete' pk=assignment.id %}">Delete</a>
+                       href="{% url 'assignments-delete' pk=assignment.id %}">{% bs_icon 'trash3' extra_classes="bi-valign-text-bottom"%}</a>
                 </div>
             </td>
         </tr>

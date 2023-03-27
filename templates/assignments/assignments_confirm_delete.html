@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    <h2>Delete assignment</h2>
-    <p>Are you sure that you want to delete assignment "{{assignment}}"?</p>
-    <p class="form-buttons">
-        <input type="submit" class="btn btn-primary" value="Delete">
-        <a href="{% url 'assignments' %}" class="btn btn-outline">Cancel</a>
-    </p>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        <h2>Delete assignment</h2>
+        <p>Are you sure that you want to delete assignment "{{ assignment }}"?</p>
+        <p class="form-buttons">
+            <button type="submit" class="btn btn-danger"
+                    value="">{% bs_icon 'trash3' extra_classes="bi-valign-default" %}Delete
+            </button>
+            <a href="{% url 'assignments' %}" class="btn btn-outline-secondary">Cancel</a>
+        </p>
+    </form>
 {% endblock %}

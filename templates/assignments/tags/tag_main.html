@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% block content %}
 
     <div class="row w-auto">
         <div class="col-4 px-0">
             {% include 'assignments/tags/tag_list.html' %}
-            <a href="{% url 'tags-create' %}">
-                <button class="btn btn-primary">Create tag</button>
-            </a>
+            <a href="{% url 'tags-create' %}" class="btn btn-primary" role="button">{% bs_icon 'plus-lg' extra_classes="bi-valign-default"%}Create tag</a>
         </div>
     </div>
 

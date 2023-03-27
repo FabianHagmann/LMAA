@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% load bootstrap5_custom_tags %}
 
@@ -18,11 +19,11 @@
 
         <div class="mt-3">
             {% if is_update %}
-                <button type="submit" class="btn btn-primary" value="">Update</button>
+                <button type="submit" class="btn btn-success" value="">{% bs_icon 'check-lg' extra_classes="bi-valign-default"%}Update</button>
             {% else %}
-                <button type="submit" class="btn btn-primary" value="">Create</button>
+                <button type="submit" class="btn btn-success" value="">{% bs_icon 'check-lg' extra_classes="bi-valign-default"%}Create</button>
             {% endif %}
-            <a class="btn btn-secondary" role="button" href="/assignments/tags">Cancel</a>
+            <a class="btn btn-outline-secondary" role="button" href="/assignments/tags">Cancel</a>
         </div>
 
     </form>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% block content %}
     <div class="row w-auto">
@@ -6,8 +7,8 @@
     </div>
     <div class="row w-auto">
         <div class="col-4 px-0">
-            <a href="{% url 'assignments-create' %}" class="btn btn-primary" role="button">Create new</a>
-            <a href="{% url 'tags' %}" class="btn btn-secondary" role="button">Manage tags</a>
+            <a href="{% url 'assignments-create' %}" class="btn btn-primary" role="button">{% bs_icon 'plus-lg' extra_classes="bi-valign-middle"%}Create new</a>
+            <a href="{% url 'tags' %}" class="btn btn-secondary" role="button">{% bs_icon 'gear' extra_classes="bi-valign-middle"%}Manage tags</a>
         </div>
     </div>
     </div>

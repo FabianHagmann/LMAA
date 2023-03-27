@@ -1,3 +1,4 @@
+{% load bootstrap_icons %}
 <table class="table table-striped">
     <thead>
     <tr>
@@ -11,8 +12,8 @@
             <td class="col-4">{{ tag.name }}</td>
             <td class="col-1">
                 <div class="btn-group" role="group">
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'tags-edit' pk=tag.id %}">Edit</a>
-                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'tags-delete' pk=tag.id %}">Delete</a>
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'tags-edit' pk=tag.id %}">{% bs_icon 'pencil' extra_classes="bi-valign-default"%}</a>
+                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'tags-delete' pk=tag.id %}">{% bs_icon 'trash3' extra_classes="bi-valign-default"%}</a>
                 </div>
             </td>
         </tr>
