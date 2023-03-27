@@ -57,6 +57,8 @@ class Assignment(models.Model):
 
 
 class Testcase(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+
     class Meta:
         db_table = "testcase"
 

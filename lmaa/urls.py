@@ -20,5 +20,6 @@ urlpatterns = [
     path('', include('gui.home.urls')),
     path('', include('gui.assignments.urls')),
     path('', include('gui.communication.urls')),
+    path('', include('gui.testing.urls')),
     path('select2/', include(django_select2_urls)),
 ]

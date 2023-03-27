@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col" class="col-2">Semester</th>
+            <th scope="col" class="col-2">Sheet</th>
+            <th scope="col" class="col-2">Task</th>
+            <th scope="col" class="col-2">Compiles Testcase</th>
+            <th scope="col" class="col-2">Contains Testcases</th>
+            <th scope="col" class="col-2">Unit Testcases</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for assignment in assignments %}
+            <tr></tr>
+{#            TODO #}
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
