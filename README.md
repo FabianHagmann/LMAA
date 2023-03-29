@@ -1,14 +1,51 @@
 # LMAA - Language Model Assignment Analyzer
 
-## Logging System
+This is LLMA (Language Model Assignment Analyser), a system
+designed to collect and analyse computer science assignments with respect to modern
+code generation tools. Studies about the possibilities and challenges of generator-tools
+have already been published. In many of these studies small sample sizes of assignments
+were solved by AI-tools. LMAA aims to be a modular, dynamic and extendable tool for
+computer science educators to evaluate their curricula and courses in the light of content
+generation tools. 
 
-TBD
+## How to use
 
-## Database System
+### Setup
 
-TBD
+For initial setup run `setup.py`. This will create the required file structures and the database, including language
+model detection.
 
-## Communicator System
+````shell
+python setup.py
+````
+
+### Run
+
+The application can be started by running `run.py`. Make sure to finish the setup before starting the application.
+
+````shell
+python run.py
+````
+
+## Advanced management tasks
+
+### Logging System
+
+The logging system is structured as follows:
+- **Console logging:** Only for Django logging
+- **Django logging:** For Django logging and other system processes
+
+The logfile is located according to `config/system_config.yaml`. The default location is `logs/lmaa-log.log`
+
+### Database System
+
+The database system is handled by [Django Models](https://docs.djangoproject.com/en/4.1/topics/db/models/). The database
+structure is accordingly defined in `<appname>/models.py`.
+
+By default `SQLite` is used as a database system. The database file is located according to `config/system_config.yaml`.
+The default location is `data/lmaa-local.db`
+
+### Communicator System
 
 The communicator system can be dynamically extended. Correctly configured and implemented communicators will
 automatically be available in the `CommunicationManager` and the `django` frontend upon the next startup. 
@@ -35,7 +72,7 @@ The provided implementation found in `communicator_openai_chat_completion.py` ma
 If all steps have been completed correctly the `CommunicationManager` will automatically detect the implementation and 
 make it available via `get_implementations()`.
 
-### Removing outdated communicators
+#### Removing outdated communicators
 Outdated communicators may not necassarily be removed, but it is possible. Solutions stored in the database only contain
 the name of the implementation.
 
