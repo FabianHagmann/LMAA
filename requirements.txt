@@ -4,5 +4,4 @@ openai~=0.27.2
 django-bootstrap5~=22.2
 django-select2~=8.1.1
 django-widget-tweaks~=1.4.12
-django-background-tasks4~=1.3.0
 django-bootstrap-icons~=0.8.2
