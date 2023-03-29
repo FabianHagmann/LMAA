@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django import forms
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.datetime_safe import datetime
@@ -9,7 +8,7 @@ from django.views.generic import FormView
 from gui.assignments.models import Assignment, Solution
 from gui.communication.forms import LanguageModelRequestForm, LanguageModelRequestConfigurationForm, \
     LanguageModelRequestSolutionEditForm
-from gui.communication.models import Property, PropertyType, SolutionRequest, SolutionRequestParameter, \
+from gui.communication.models import Property, SolutionRequest, SolutionRequestParameter, \
     SolutionRequestStatus
 from gui.communication.tasks import SolutionRequestThread
 

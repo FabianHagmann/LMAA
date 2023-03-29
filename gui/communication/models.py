@@ -1,13 +1,10 @@
 import json
-import threading
 from enum import IntEnum
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.datetime_safe import datetime
 
 from gui.assignments.models import Assignment, Solution
-from scripts.communication import communication_manager as manager
 
 """
 Contains all models required for communication-pages:
