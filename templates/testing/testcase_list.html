@@ -8,15 +8,37 @@
             <th scope="col" class="col-2">Semester</th>
             <th scope="col" class="col-2">Sheet</th>
             <th scope="col" class="col-2">Task</th>
-            <th scope="col" class="col-2">Compiles Testcase</th>
-            <th scope="col" class="col-2">Contains Testcases</th>
-            <th scope="col" class="col-2">Unit Testcases</th>
+            <th scope="col" class="col-1">Subtask</th>
+            <th scope="col" class="col-1">Compiles Testcase</th>
+            <th scope="col" class="col-1">Contains Testcases</th>
+            <th scope="col" class="col-1">Unit Testcases</th>
+            <th scope="col" class="col-2">Actions</th>
         </tr>
         </thead>
         <tbody>
         {% for assignment in assignments %}
-            <tr></tr>
-{#            TODO #}
+            <tr>
+                <td class="col-2">{{ assignment.assignment.semester }}</td>
+                <td class="col-2">{{ assignment.assignment.sheet }}</td>
+                <td class="col-2">{{ assignment.assignment.task }}</td>
+                <td class="col-1">{{ assignment.assignment.subtask }}</td>
+                <td class="col-1">
+                    {% if assignment.compiles_testcase %}
+                        <div style="color: #14A44D">active</div>
+                    {% else %}
+                        <div style="color: #DC4C64">inactive</div>
+                    {% endif %}
+                </td>
+                <td class="col-1">{{ assignment.contains_testcases }}</td>
+                <td class="col-1">
+                    {% if assignment.unit_testcase %}
+                        <div style="color: #14A44D">active</div>
+                    {% else %}
+                        <div style="color: #DC4C64">inactive</div>
+                    {% endif %}
+                </td>
+                <td class="col-2"></td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
