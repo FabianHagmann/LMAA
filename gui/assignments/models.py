@@ -64,57 +64,12 @@ class Assignment(models.Model):
             + (self.subtask if self.subtask is not None else '')
 
 
-class Testcase(models.Model):
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "testcase"
-
-
-class CompilesTestcase(Testcase):
-    active = models.BooleanField(blank=True)
-
-    class Meta:
-        db_table = "compiles_testcase"
-
-
-class ContainsTestcase(Testcase):
-    phrase = models.CharField(max_length=64)
-    times = models.IntegerField(default=1, blank=True)
-
-    class Meta:
-        db_table = "contains_testcase"
-
-
-class UnitTestcase(Testcase):
-    file = models.FileField(upload_to='db_files/', blank=True)
-
-    class Meta:
-        db_table = "unit_testcase"
-
-
 class Solution(models.Model):
     timestamp = models.DateTimeField(blank=True)
     communicator = models.CharField(max_length=64, blank=True)
     solution = models.CharField(max_length=solution_maxlength, blank=True)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    testresults = models.ManyToManyField(Testcase, through='Testresult')
     is_new = models.BooleanField(default=False)
 
     class Meta:
         db_table = "solution"
-
-
-class Testresult(models.Model):
-    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
-    testcase = models.ForeignKey(Testcase, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(blank=True)
-    result = models.BooleanField(blank=True)
-    message = models.CharField(
-        validators=[
-            MaxValueValidator(1024)
-        ]
-    ),
-
-    class Meta:
-        db_table = "testresult"
