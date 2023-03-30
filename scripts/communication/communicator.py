@@ -33,6 +33,7 @@ class PropertyType(IntEnum):
     int = 1
     float = 2
     str = 3
+    select = 4
 
     @classmethod
     def choices(cls):
@@ -114,5 +115,18 @@ class Communicator(ABC):
         Fetch all available optional parameters
 
         :return: list of optional parameters as CommunicatorProperty
+        """
+        pass
+
+    @abstractmethod
+    def get_property_options(self, prop_name: str) -> dict[str, str]:
+        """
+        Fetch available options for select properties
+
+        If the implementation contains a property of type SELECT you may provide the frontend with available options.
+        Depending on the parameter 'prop_name' you may return these options.
+
+        :param prop_name: name of the property for which options should be returned
+        :return: dict[str,str] containing a dict with display-name:value
         """
         pass

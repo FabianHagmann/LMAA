@@ -28,6 +28,7 @@ class PropertyType(IntEnum):
     int = 1
     float = 2
     str = 3
+    select = 4
 
     @classmethod
     def choices(cls):

@@ -100,6 +100,9 @@ class OpenAICommunicatorImpl(Communicator):
 
         return optional_properties
 
+    def get_property_options(self, prop_name: str) -> dict[str, str]:
+        return {}
+
     def __send_validated_request__(self, validated_request_parameters: dict[str, any]) -> str:
         """
         submethod for sending a request containing validated request data

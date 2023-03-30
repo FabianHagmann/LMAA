@@ -42,7 +42,9 @@ class LanguageModelRequestConfigurationForm(forms.Form):
         parameters
         """
 
+        # pop custom kwargs and call super init
         request_pk = kwargs.pop('req', None)
+        options = kwargs.pop('select_options', None)
         super().__init__(*args, **kwargs)
 
         if SolutionRequest.objects.get(pk=request_pk):
@@ -53,6 +55,11 @@ class LanguageModelRequestConfigurationForm(forms.Form):
                         self.fields[prop.name] = forms.IntegerField(required=prop.mandatory, initial=int(prop.default))
                     elif prop.type == PropertyType.float:
                         self.fields[prop.name] = forms.FloatField(required=prop.mandatory, initial=float(prop.default))
+                    elif prop.type == PropertyType.select:
+                        self.fields[prop.name] = forms.ChoiceField(
+                            required=prop.mandatory,
+                            choices=options[prop.name + "_options"],
+                        )
                     else:
                         self.fields[prop.name] = forms.CharField(required=prop.mandatory, initial=prop.default)
 
@@ -63,6 +70,7 @@ class LanguageModelRequestSolutionEditForm(forms.Form):
 
     Automatically adds new solutions as form fields in __init__()
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

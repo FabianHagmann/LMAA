@@ -16,11 +16,20 @@ class OpenAICommunicatorImpl(Communicator):
     Implementation of 'Communicator' from communication with OpenAI chat models
     """
 
-    system_description = "You are a programmer writing java programs for introductory programming lectures"
     properties = [
-        CommunicatorProperty('model', PropertyType.str, True, "", True),
+        CommunicatorProperty('model', PropertyType.select, True, "", True),
+        CommunicatorProperty('role', PropertyType.select, True, "", True),
         CommunicatorProperty('prompt', PropertyType.str, True, "", False)
     ]
+    model_options = {
+        'gpt-3.5-turbo': 'gpt-3.5-turbo'
+    }
+    role_options = {
+        'Coder': 'You are a programmer writing java programs for introductory programming lectures. '
+                 'You only write code and no explanations. You always wrapp the code in a java-class called \'Aufgabe\'',
+        'Explainer': 'You are a programmer writing java programs for introductory programming lectures. '
+                     'You always give detailed descriptions of the written code.'
+    }
     name = 'OpenAI Chat'
 
     def __init__(self):
@@ -48,10 +57,16 @@ class OpenAICommunicatorImpl(Communicator):
         # check if no unknown parameters are given
         for parameter_key in request_parameters.keys():
             exists = False
+            if self.__is_property_select__(parameter_key) and type(
+                    request_parameters.get(parameter_key)).__name__ == 'str':
+                exists = True
+                continue
+
             for prop in self.properties:
                 if parameter_key == prop.name and type(
                         request_parameters.get(parameter_key)).__name__ == prop.type.name:
                     exists = True
+
             if exists is False:
                 logging.error("Parameter validation failed: Unexpected parameter \'" + parameter_key + "\' found")
                 return False
@@ -60,11 +75,13 @@ class OpenAICommunicatorImpl(Communicator):
         for prop in self.properties:
             if prop.mandatory is not True:
                 continue
-            if request_parameters.keys().__contains__(prop.name) and type(
-                    request_parameters.get(prop.name)).__name__ == prop.type.name:
-                continue
-            else:
-                return False
+            if request_parameters.keys().__contains__(prop.name):
+                if prop.type == PropertyType.select:
+                    if type(request_parameters.get(prop.name)).__name__ != 'str':
+                        return False
+                else:
+                    if type(request_parameters.get(prop.name)).__name__ != prop.type.name:
+                        return False
         return True
 
     def get_mandatory_parameters(self) -> list[CommunicatorProperty]:
@@ -85,6 +102,15 @@ class OpenAICommunicatorImpl(Communicator):
 
         return optional_properties
 
+    def get_property_options(self, prop_name: str) -> dict[str, str]:
+        match prop_name:
+            case 'role':
+                return self.role_options
+            case 'model':
+                return self.model_options
+            case _:
+                return {}
+
     def __send_validated_request__(self, validated_request_parameters: dict[str, any]) -> str:
         """
         submethod for sending a request containing validated request data
@@ -93,8 +119,8 @@ class OpenAICommunicatorImpl(Communicator):
         :return: openAI ChatCompletion
         """
 
-        messages = self.__build_message_from_prompt_and_system_description(validated_request_parameters['prompt'],
-                                                                           self.system_description)
+        messages = self.__build_message_from_prompt_and_role__(validated_request_parameters['prompt'],
+                                                               validated_request_parameters['role'])
 
         return openai.ChatCompletion.create(
             model=validated_request_parameters['model'],
@@ -138,9 +164,15 @@ class OpenAICommunicatorImpl(Communicator):
         return CommunicationResponse(200, result)
 
     @staticmethod
-    def __build_message_from_prompt_and_system_description(prompt: str, system_desc: str) -> str:
+    def __build_message_from_prompt_and_role__(prompt: str, system_desc: str) -> str:
         system_message = {'role': 'system', 'content': system_desc}
         user_message = {'role': 'user', 'content': prompt}
         messages = [system_message, user_message]
 
         return messages
+
+    def __is_property_select__(self, prop_name):
+        for prop in self.properties:
+            if prop.name != prop_name:
+                continue
+            return prop.type == PropertyType.select
