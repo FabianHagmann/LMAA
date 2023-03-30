@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 import openai as openai
 import yaml
@@ -106,7 +107,7 @@ class OpenAICommunicatorImpl(Communicator):
         static method for fetching the api key when initializing
         """
         logging.debug("Fetching API Key")
-        config_stream = open(project_utils.find_root_path(__file__) + '/config/system_config.yaml', 'r')
+        config_stream = open(os.path.join(project_utils.find_root_path(__file__), 'config', 'system_config.yaml'), 'r')
         config_map = yaml.safe_load(config_stream)
         openai.api_key = config_map['communicator']['openai-completion']['apikey']
 
