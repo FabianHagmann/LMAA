@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 
 {% block content %}
 
@@ -37,7 +38,12 @@
                         <div style="color: #DC4C64">inactive</div>
                     {% endif %}
                 </td>
-                <td class="col-2"></td>
+                <td class="col-2">
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-success btn-sm"
+                           href="{% url 'testing-details' pk=assignment.assignment.id %}">{% bs_icon 'search' extra_classes="bi-valign-default" %}</a>
+                    </div>
+                </td>
             </tr>
         {% endfor %}
         </tbody>

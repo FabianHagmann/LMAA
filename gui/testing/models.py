@@ -39,7 +39,7 @@ class ContainsTestcase(Testcase):
 
 
 class UnitTestcase(Testcase):
-    file = models.FileField(upload_to='db_files/', blank=True)
+    file = models.FileField(upload_to='data/', blank=True)
 
     class Meta:
         db_table = "unit_testcase"

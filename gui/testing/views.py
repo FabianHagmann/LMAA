@@ -1,6 +1,7 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 
 from gui.assignments.models import Assignment
+from gui.testing.forms import AssignmentTestcasesForm
 from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase
 
 
@@ -29,7 +30,7 @@ class TestcaseListView(TemplateView):
     def __build_assignments_with_testcases_list():
         assignments = []
         for ass in Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask'):
-            compiles_testcase_active = CompilesTestcase.objects.filter(assignment=ass).exists()
+            compiles_testcase_active = CompilesTestcase.objects.filter(assignment=ass, active=True).exists()
             contains_testcases = ContainsTestcase.objects.filter(assignment=ass).count()
             unit_testcase_active = UnitTestcase.objects.filter(assignment=ass).exists()
 
@@ -38,5 +39,55 @@ class TestcaseListView(TemplateView):
         return assignments
 
 
-def __build_testcase_list_context__():
-    pass
+class TestcaseDetailsView(FormView):
+    form_class = AssignmentTestcasesForm
+    template_name = 'testing/testcase_details.html'
+    success_url = '/testing'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.assignment = None
+
+    def form_valid(self, form):
+        assignment_pk = self.get_form_kwargs().get('ass')
+
+        self.__update_or_create_compiles_testcase(assignment_pk, form.cleaned_data['compilesTestcase'])
+        self.__update_or_create_unit_testcase(assignment_pk, self.request.FILES.get('unitTestcase'))
+
+        return super().form_valid(form)
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(TestcaseDetailsView, self).get_form_kwargs()
+
+        assignment_pk = self.kwargs['pk']
+        self.assignment = Assignment.objects.get(pk=assignment_pk)
+        kwargs.__setitem__('ass', assignment_pk)
+
+        return kwargs
+
+    @staticmethod
+    def __update_or_create_compiles_testcase(assignment_pk, updated_value):
+        testcase_exists = CompilesTestcase.objects.filter(assignment_id=assignment_pk).exists()
+
+        if testcase_exists:
+            existing_testcase = CompilesTestcase.objects.filter(assignment_id=assignment_pk).first()
+            existing_testcase.active = True if int(updated_value) else False
+            existing_testcase.save()
+        else:
+            new_testcase = CompilesTestcase(assignment_id=assignment_pk, active=updated_value)
+            new_testcase.save()
+
+    @staticmethod
+    def __update_or_create_unit_testcase(assignment_pk, updated_file):
+        testcase_exists = UnitTestcase.objects.filter(assignment_id=assignment_pk).exists()
+
+        if testcase_exists:
+            if updated_file is None:
+                UnitTestcase.objects.filter(assignment_id=assignment_pk).delete()
+            else:
+                existing_testcase = UnitTestcase.objects.filter(assignment_id=assignment_pk).first()
+                existing_testcase.file = updated_file
+                existing_testcase.save()
+        elif updated_file is not None:
+            new_testcase = UnitTestcase(assignment_id=assignment_pk, file=updated_file)
+            new_testcase.save()

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load bootstrap5_custom_tags %}
+
+{% block content %}
+
+    <h1>{{ assignment.assignment }} Testcases</h1>
+
+    <form action="" method="post" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-3">
+                <div class="mt-3 card">
+                    <div class="card-body">
+                        <h5 class="card-title">Compile check</h5>
+                        <div class="card-text">
+                            {% bootstrap_form_group_no_label form.compilesTestcase %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mt-3 card">
+                    <div class="card-body">
+                        <h5 class="card-title">Contains checks</h5>
+                        <div class="card-text">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mt-3 card">
+                    <div class="card-body">
+                        <h5 class="card-title">Unit checks</h5>
+                        <div class="card-text">
+                            {% bootstrap_form_group_no_label form.unitTestcase %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary col-1" value="">Save</button>
+        </div>
+    </form>
+
+
+{% endblock %}
