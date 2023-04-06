@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap_icons %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <h2>Delete contains check</h2>
+        <p>Are you sure that you want to delete "{{ ctc }}" from assignment "{{ assignment }}"?</p>
+        <p class="form-buttons">
+            <button type="submit" class="btn btn-danger"
+                    value="">{% bs_icon 'trash3' extra_classes="bi-valign-default" %}Delete
+            </button>
+            <a href="{% url 'testing-contains-overview' ass=assignment.id %}" class="btn btn-outline-secondary">Cancel</a>
+        </p>
+    </form>
+{% endblock %}

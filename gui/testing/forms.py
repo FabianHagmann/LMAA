@@ -40,35 +40,11 @@ class AssignmentTestcasesForm(forms.Form):
             else:
                 self.fields['compilesTestcase'].initial = '0'
 
-            for i, cont_testcase in enumerate(ContainsTestcase.objects.filter(assignment_id=assignment_pk).all()):
-                self.fields['containsTestcasePhrase{}'.format(i)] = forms.CharField(
-                    max_length=64,
-                    required=True,
-                    initial=cont_testcase.phrase
-                )
-                self.fields['containsTestcaseTimes{}'.format(i)] = forms.IntegerField(
-                    max_value=10,
-                    min_value=0,
-                    required=True,
-                    initial=cont_testcase.times
-                )
-
             if UnitTestcase.objects.filter(assignment_id=assignment_pk).exists():
                 self.fields['unitTestcase'].initial = UnitTestcase.objects.filter(
                     assignment_id=assignment_pk).first().file
 
-    def get_contains_testcases(self, assignment_pk):
-        contains_testcases = []
 
-        # get the input values for each ContainsTestcase instance
-        for i, cont_testcase in enumerate(ContainsTestcase.objects.filter(assignment_id=assignment_pk).all()):
-            phrase_key = 'containsTestcasePhrase{}'.format(i)
-            times_key = 'containsTestcaseTimes{}'.format(i)
-            phrase_value = self.cleaned_data.get(phrase_key)
-            times_value = self.cleaned_data.get(times_key)
-            if phrase_value and times_value:
-                cont_testcase.phrase = phrase_value
-                cont_testcase.times = times_value
-                contains_testcases.append(cont_testcase)
-
-        return contains_testcases
+class ContainsTestcaseCreateForm(forms.Form):
+    phrase = forms.CharField(max_length=64, required=True)
+    times = forms.IntegerField(min_value=1, max_value=10, required=True, initial=1)

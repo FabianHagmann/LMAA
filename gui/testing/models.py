@@ -37,6 +37,9 @@ class ContainsTestcase(Testcase):
     class Meta:
         db_table = "contains_testcase"
 
+    def __str__(self):
+        return self.phrase + ' (' + str(self.times) + 'x)'
+
 
 class UnitTestcase(Testcase):
     file = models.FileField(upload_to='data/', blank=True)

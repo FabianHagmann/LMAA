@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap_icons %}
 {% load bootstrap5_custom_tags %}
 
 {% block content %}
@@ -23,7 +24,20 @@
                     <div class="card-body">
                         <h5 class="card-title">Contains checks</h5>
                         <div class="card-text">
+                            <table class="table table-striped">
+                                {% for ctc in containsTestcases %}
+                                    <tr>
+                                        <td>{{ ctc.phrase }}</td>
+                                        <td>{{ ctc.times }}x</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <th colspan="2">No contains checks yet</th>
+                                    </tr>
+                                {% endfor %}
+                            </table>
                         </div>
+                        <a href="{% url 'testing-contains-overview' ass=assignment_pk %}" class="btn btn-secondary">{% bs_icon 'pencil' extra_classes="bi-valign-default"%}Edit</a>
                     </div>
                 </div>
             </div>

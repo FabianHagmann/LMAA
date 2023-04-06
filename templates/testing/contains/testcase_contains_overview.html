@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load bootstrap_icons %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col" class="col-2">Phrase</th>
+            <th scope="col" class="col-2">Appearances</th>
+            <th scope="col" class="col-1"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ctc in object_list %}
+            <tr>
+                <td class="col-2">{{ ctc.phrase }}</td>
+                <td class="col-2">{{ ctc.times }}x</td>
+                <td>
+                    <a class="btn btn-danger btn-sm" role="button"
+                       href="{% url 'testing-contains-delete' ass=assignment_pk pk=ctc.id %}">{% bs_icon 'trash3' extra_classes="bi-valign-default" %}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="btn-toolbar mt-3">
+        <a href="{% url 'testing-contains-add' ass=assignment_pk %}" class="btn btn-primary"
+           role="button">{% bs_icon 'plus-lg' extra_classes="bi-valign-default" %}Create contains check</a>
+        <a href="{% url 'testing-details' ass=assignment_pk %}" class="btn btn-outline-secondary ms-2"
+           role="button">Close</a>
+    </div>
+
+{% endblock %}
