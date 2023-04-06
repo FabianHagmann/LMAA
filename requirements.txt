@@ -1,4 +1,4 @@
-Django~=4.1.7
+Django==4.2
 PyYAML~=6.0
 openai~=0.27.2
 django-bootstrap5~=22.2
