@@ -1,28 +1,52 @@
-from scripts.testing.testing_executors import CompileTestExecutor
+from scripts.testing.testing_executors import CompileTestExecutor, UnitTestExecutor
 
 solution = 'public class Aufgabe {\
-    public static void main(String[] args) {\
-        String text = "Eine entsprechende und geeignete Sprache.";\
-        int i = 0;\
-        öwhile (i < text.length()) {\
-            if ((i+1) % 3 == 0 && text.charAt(i) != \'e\') {\
-                System.out.print(text.charAt(i));\
+    public static String addSign(String text, char sign) {\
+        StringBuilder sb = new StringBuilder();\
+        for(int i = 0; i < text.length(); i++) {\
+            for(int j = 0; j <= i; j++) {\
+                sb.append(text.charAt(j));\
             }\
-            i++;\
+            if(i < text.length() - 1) {\
+                sb.append(sign);\
+            }\
         }\
-        if (i == 0) {\
-            System.out.print("Kein gesuchtes Zeichen im String!");\
-        }\
+        return sb.toString();\
     }\
 }'
 
-tester = CompileTestExecutor()
+test = 'import org.junit.jupiter.api.Test;\
+\
+import static org.junit.jupiter.api.Assertions.assertEquals;\
+\
+public class AddSignTest {\
+\
+    @Test\
+    public void testOne() {\
+        String result = Aufgabe.addSign("Hello!", \'#\');\
+        assertEquals(result, "H#e##l###l####o#####!");\
+    }\
+}'
 
-result = tester.execute_test(solution)
+compileTester = CompileTestExecutor()
+
+result = compileTester.execute_test(solution)
 
 print('--------------------------------------------')
-print('Results:')
+print('Compile Result:')
 print(f'\tPass: {result.result}')
 print(f'\tTime: {result.timestamp}')
 print(f'\tMessage: {result.message}')
+print('--------------------------------------------')
+
+
+unitTester = UnitTestExecutor()
+
+result = unitTester.execute_test(solution, test)
+
+print('--------------------------------------------')
+print('Compile Result:')
+print(f'\tPass: {result.result}')
+print(f'\tTime: {result.timestamp}')
+print(f'\tMessage:\n{result.message}')
 print('--------------------------------------------')
