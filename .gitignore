@@ -134,3 +134,4 @@ dmypy.json
 # LMAA Specific
 /logs
 /data
+temp

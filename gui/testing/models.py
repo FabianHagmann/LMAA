@@ -53,11 +53,7 @@ class Testresult(models.Model):
     testcase = models.ForeignKey(Testcase, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(blank=True)
     result = models.BooleanField(blank=True)
-    message = models.CharField(
-        validators=[
-            MaxValueValidator(1024)
-        ]
-    ),
+    message = models.CharField(max_length=1024, default=' ')
 
     class Meta:
         db_table = "testresult"
