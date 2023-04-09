@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView, ListView, DeleteView
 
-from gui.assignments.models import Assignment
+from gui.assignments.models import Assignment, Solution
 from gui.testing.forms import AssignmentTestcasesForm, ContainsTestcaseCreateForm
-from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase
+from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase, Testresult
 from gui.testing.tasks import TestingExecutionThread
 
 
@@ -75,6 +75,10 @@ class TestcaseDetailsView(FormView):
         context['containsTestcases'] = ContainsTestcase.objects.filter(assignment_id=self.kwargs['ass']) \
             .order_by('phrase').all()
 
+        context['existing_test_results'] = self.__build_existing_test_results__(self.kwargs.get('ass'))
+        context['existing_solutions'] = Solution.objects.filter(assignment_id=self.kwargs.get('ass'))
+        context['existing_solutions_range'] = range(len(context['existing_solutions']))
+
         return context
 
     @staticmethod
@@ -103,6 +107,26 @@ class TestcaseDetailsView(FormView):
         elif updated_file is not None:
             new_testcase = UnitTestcase(assignment_id=assignment_pk, file=updated_file)
             new_testcase.save()
+
+    def __build_existing_test_results__(self, assignment_id: int) -> dict[str, [Testresult]]:
+
+        compiles_test_cases = CompilesTestcase.objects.filter(assignment_id=assignment_id)
+        compiles_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                          testcase__in=compiles_test_cases)
+
+        contains_test_cases = ContainsTestcase.objects.filter(assignment_id=assignment_id)
+        contains_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                          testcase__in=contains_test_cases)
+
+        unit_test_cases = UnitTestcase.objects.filter(assignment_id=assignment_id)
+        unit_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                      testcase__in=unit_test_cases)
+
+        return {
+            'compiles': compiles_test_results,
+            'contains': contains_test_results,
+            'unit': unit_test_results
+        }
 
 
 class TestcaseContainsOverview(ListView):

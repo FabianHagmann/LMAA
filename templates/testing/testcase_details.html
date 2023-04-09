@@ -37,7 +37,8 @@
                                 {% endfor %}
                             </table>
                         </div>
-                        <a href="{% url 'testing-contains-overview' ass=assignment_pk %}" class="btn btn-secondary">{% bs_icon 'pencil' extra_classes="bi-valign-default"%}Edit</a>
+                        <a href="{% url 'testing-contains-overview' ass=assignment_pk %}"
+                           class="btn btn-secondary">{% bs_icon 'pencil' extra_classes="bi-valign-default" %}Edit</a>
                     </div>
                 </div>
             </div>
@@ -57,5 +58,38 @@
         </div>
     </form>
 
+    {% if existing_solutions|length > 0 and existing_test_results|length > 0 %}
+        <div class="mt-3 w-100">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td></td>
+                    {% for i in existing_solutions_range %}
+                        <td>Solution {{ i }}</td>
+                        {# TODO: create link to solution #}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Compile check</td>
+                    {% for solution in existing_solutions %}
+                        <td>
+                            {% for result in existing_test_results.compiles %}
+                                {% if result.solution.id == solution.id %}
+                                    {% if result.result %}
+                                        {% bs_icon 'check2' color='green' size='1.5em' %}
+                                    {% else %}
+                                        {% bs_icon 'x-lg' color='red' size='1.5em' %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
 
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 {% endblock %}
