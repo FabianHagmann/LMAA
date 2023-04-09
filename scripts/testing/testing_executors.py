@@ -5,6 +5,8 @@ import uuid
 
 from django.utils.datetime_safe import datetime
 
+import utils.project_utils
+
 
 class TestExecutionResponse:
     """
@@ -89,7 +91,7 @@ class ContainsTestExecutor:
 
 
 class CompileTestExecutor:
-    __test_parent_dir__ = os.path.join(os.getcwd(), 'temp')
+    __test_parent_dir__ = os.path.join(utils.project_utils.find_root_path(__file__), 'scripts', 'testing', 'temp')
 
     def __init__(self) -> None:
         self.__build_test_directory_structure__()
@@ -220,7 +222,7 @@ class CompileTestExecutor:
 
 
 class UnitTestExecutor:
-    __test_parent_dir__ = os.path.join(os.getcwd(), 'temp')
+    __test_parent_dir__ = os.path.join(utils.project_utils.find_root_path(__file__), 'scripts', 'testing', 'temp')
 
     def __init__(self) -> None:
         self.__build_test_directory_structure__()
@@ -310,7 +312,7 @@ class UnitTestExecutor:
         # copy junit console jar to the testing directory
         try:
             junit_jar_name = 'junit-platform-console-standalone-1.9.2.jar'
-            shutil.copy(os.path.join(os.getcwd(), 'helpers', junit_jar_name), test_dir)
+            shutil.copy(os.path.join(utils.project_utils.find_root_path(__file__), 'scripts', 'testing', 'helpers', junit_jar_name), test_dir)
         except IOError:
             raise TestExecutionException('Error when adding junit-jar to test environment')
 

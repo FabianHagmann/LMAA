@@ -17,21 +17,28 @@ class TestingExecutionThread(threading.Thread):
         # fetch and check assignment
         try:
             assignment = Assignment.objects.get(id=self.assignment_id)
-        except Exception:
+        except Assignment.DoesNotExist:
             # TODO
             return
 
         # fetch all testcases for assignment
-        check_compile = CompilesTestcase.objects.filter(assignment=assignment, active=True).get()
+        try:
+            check_compile = CompilesTestcase.objects.filter(assignment=assignment, active=True).get()
+        except CompilesTestcase.DoesNotExist:
+            check_compile = None
+
         contains_testcases = ContainsTestcase.objects.filter(assignment=assignment).all()
-        unit_testcase = UnitTestcase.objects.filter(assignment=assignment).all()
+        try:
+            unit_testcase = UnitTestcase.objects.filter(assignment=assignment).get()
+        except UnitTestcase.DoesNotExist:
+            unit_testcase = None
 
         # execute testcases
         man = manager.TestingManager()
 
         # for every solution available for the assignment
         for solution in Solution.objects.filter(assignment=assignment).all():
-            if check_compile:
+            if check_compile is not None:
                 response = man.solution_compiles(solution.solution)
                 self.__store_execution_response__(response, solution, check_compile)
 
@@ -39,7 +46,10 @@ class TestingExecutionThread(threading.Thread):
                 response = man.solution_contains(solution.solution, ctc.phrase, ctc.times)
                 self.__store_execution_response__(response, solution, ctc)
 
-    #         TODO: unit test execution
+            if unit_testcase is not None:
+                unit_test_code = self.__convert_file_to_string__(unit_testcase.file)
+                response = man.solution_unit_test(solution.solution, unit_test_code)
+                self.__store_execution_response__(response, solution, unit_testcase)
 
     def __store_execution_response__(self, response: TestExecutionResponse, solution: Solution, testcase: Testcase):
         test_result = Testresult(timestamp=response.timestamp,
@@ -48,3 +58,11 @@ class TestingExecutionThread(threading.Thread):
                                 solution=solution,
                                 testcase=testcase)
         test_result.save()
+
+    def __convert_file_to_string__(self, file) -> str:
+        code = ''
+        file_stream = file.open(mode='rb')
+
+        for line in file_stream:
+            code += line.decode('utf-8')
+        return code

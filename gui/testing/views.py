@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView, ListView, DeleteView
 
@@ -153,7 +152,6 @@ class TestcaseContainsAddNew(FormView):
 
 
 class TestcaseContainsDelete(DeleteView):
-
     model = ContainsTestcase
     context_object_name = 'ctc'
     template_name = 'testing/contains/testcase_contains_delete.html'
