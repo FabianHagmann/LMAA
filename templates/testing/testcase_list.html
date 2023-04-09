@@ -2,6 +2,7 @@
 {% load bootstrap_icons %}
 
 {% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <table class="table table-striped">
         <thead>
@@ -40,10 +41,24 @@
                 </td>
                 <td class="col-2">
                     <div class="btn-group" role="group">
-                        <a class="btn btn-success btn-sm"
+                        <a class="btn btn-primary btn-sm"
                            href="{% url 'testing-details' ass=assignment.assignment.id %}">{% bs_icon 'search' extra_classes="bi-valign-default" %}</a>
+                        <a class="btn btn-success btn-sm" id="start_test_{{ assignment.assignment.id }}"
+                           href="#">{% bs_icon 'play' extra_classes="bi-valign-default" %}</a>
                     </div>
                 </td>
+
+                <script>
+                    $(document).ready(function () {
+                        $('#start_test_{{ assignment.assignment.id }}').mousedown(function () {
+                            $.ajax({
+                                url: "{% url 'testing-execute' ass=assignment.assignment.id %}"
+                            });
+
+                            return false;
+                        });
+                    })
+                </script>
             </tr>
         {% endfor %}
         </tbody>

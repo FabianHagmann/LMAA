@@ -1,9 +1,12 @@
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView, ListView, DeleteView
 
 from gui.assignments.models import Assignment
 from gui.testing.forms import AssignmentTestcasesForm, ContainsTestcaseCreateForm
 from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase
+from gui.testing.tasks import TestingExecutionThread
 
 
 class AssignmentWithTestcases:
@@ -171,3 +174,6 @@ class TestcaseContainsDelete(DeleteView):
         )
 
 
+def start_tests_for_assignment(request, ass):
+    TestingExecutionThread(assignment_id=ass).start()
+    return HttpResponse('')
