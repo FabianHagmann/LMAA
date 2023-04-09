@@ -28,8 +28,8 @@ public class AddSignTest {\
     }\
 }'
 
+# Create and use compiles test executor
 compileTester = CompileTestExecutor()
-
 result = compileTester.execute_test(solution)
 
 print('--------------------------------------------')
@@ -40,8 +40,8 @@ print(f'\tMessage: {result.message}')
 print('--------------------------------------------')
 
 
+# Create and use unit test executor
 unitTester = UnitTestExecutor()
-
 result = unitTester.execute_test(solution, test)
 
 print('--------------------------------------------')
