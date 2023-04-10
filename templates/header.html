@@ -17,9 +17,6 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" aria-current="page" href="/assignments">Assignments</a>
                 </li>
-                {#                <li class="nav-item">#}
-                {#                    <a class="nav-link text-white" aria-current="page" href="/communication">Communication</a>#}
-                {#                </li>#}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-white" href="/communication/new" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">
@@ -33,8 +30,15 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" aria-current="page" href="/testing">Testing</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" aria-current="page" href="/visualization">Visualization</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="/visualization/overview" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Visualization
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item text-white" href="/visualization/overview">Overview</a></li>
+                        <li><a class="dropdown-item text-white" href="/visualization/filter">Filter</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>

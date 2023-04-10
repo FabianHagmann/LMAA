@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load bootstrap_icons %}
+
+{% block content %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <div id="search-icon-template" style="display:none;">
+        {% bs_icon 'search' extra_classes="bi-valign-text-default" %}
+    </div>
+
+    <h1>Assignments overview</h1>
+
+    <style>
+        .hover_cursor {
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="row w-100">
+        <div class="col-5">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td class="col-8">Assignment</td>
+                    <td class="col-3">Solutions</td>
+                    <td class="col-auto"></td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for assignment in assignments %}
+                    <tr class="hover_cursor" id="assignment_select_{{ assignment.id }}">
+                        <td>{{ assignment }}</td>
+                        <td>{{ assignment.solution_set.all|length }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-primary btn-sm"
+                                   href="{% url 'assignments-details' pk=assignment.id %}">{% bs_icon 'search' extra_classes="bi-valign-text-default" %}</a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <script>
+                        $(document).ready(function () {
+                            $('#assignment_select_{{ assignment.id }}').mousedown(function () {
+                                $.ajax({
+                                    url: "{% url 'visualization-assignment-solutions' ass=assignment.id %}",
+                                    success: function (response) {
+
+                                        $("#solution_table tbody").empty();
+
+                                        response['solutions'].forEach(function (solution) {
+                                            var newRow = $("<tr></tr>");
+
+                                            // Add columns to the new row
+                                            newRow.append($("<td></td>").text(solution.timestamp));
+                                            newRow.append($("<td></td>").text(solution.communicator));
+
+                                            // Add action button with appropriate URL
+                                            var iconSvg = $("#search-icon-template").html();
+                                            var actionButton = $("<a></a>")
+                                                .addClass("btn btn-primary btn-sm")
+                                                .attr("href", "{% url 'visualize-solution' pk=0 %}".replace("0", solution.id))
+                                                .html(iconSvg);
+                                            var actionColumn = $("<td></td>").append(actionButton);
+                                            newRow.append(actionColumn);
+
+                                            // Append the new row to the table
+                                            $("#solution_table tbody").append(newRow);
+                                            $("#solution_table").show()
+                                        });
+                                    }
+                                });
+
+                                return false;
+                            });
+                        })
+                    </script>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-5">
+            <table class="table table-striped" id="solution_table">
+                <thead>
+                <tr>
+                    <td class="col-5">Timestamp</td>
+                    <td class="col-5">Communicator</td>
+                    <td class="col-auto"></td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for solution in solutions %}
+                    <tr>
+                        <td>{{ solution.timestamp }}</td>
+                        <td>{{ solution.communicator }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-primary btn-sm"
+                                   href="{% url 'visualize-solution' pk=solution.id %}">{% bs_icon 'search' extra_classes="bi-valign-text-default" %}</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-2">
+
+        </div>
+    </div>
+
+
+{% endblock %}

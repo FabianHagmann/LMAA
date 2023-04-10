@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'gui.assignments.apps.AssignmentsConfig',
     'gui.communication.apps.CommunicationConfig',
     'gui.testing.apps.TestingConfig',
+    'gui.visualization.apps.VisualizationConfig',
     'django_bootstrap5',
     'django_bootstrap_icons',
     'django_select2',
