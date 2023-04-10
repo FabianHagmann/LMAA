@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView, ListView, DeleteView
@@ -108,25 +110,83 @@ class TestcaseDetailsView(FormView):
             new_testcase = UnitTestcase(assignment_id=assignment_pk, file=updated_file)
             new_testcase.save()
 
-    def __build_existing_test_results__(self, assignment_id: int) -> dict[str, [Testresult]]:
+    def __build_existing_test_results__(self, assignment_id: int) -> dict[datetime.datetime, dict[str, dict[any, any]]]:
+        """
+            {
+                timestamp_1: {
+                    'compiles': {
+                        solution_1: Testresult,
+                        solution_2: Testresult,
+                        ...
+                    },
+                    'contains': {
+                        ContainsTestcase1: {
+                            solution_1: Testresult,
+                            solution_2: Testresult,
+                            ...
+                        },
+                        ContainsTestcase1: {
+                            solution_1: Testresult,
+                            solution_2: Testresult,
+                            ...
+                        },
+                        ...
+                    },
+                    'unit': {
+                        solution_1: Testresult,
+                        solution_2: Testresult,
+                        ...
+                    }
+                },
+                ...
+            }
+        """
 
-        compiles_test_cases = CompilesTestcase.objects.filter(assignment_id=assignment_id)
-        compiles_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                          testcase__in=compiles_test_cases)
+        result = {}
 
-        contains_test_cases = ContainsTestcase.objects.filter(assignment_id=assignment_id)
-        contains_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                          testcase__in=contains_test_cases)
+        # get all executed timestamps for the assignment
+        timestamps = Testresult.objects.filter(testcase__assignment_id=assignment_id) \
+            .order_by('timestamp') \
+            .values_list('timestamp', flat=True) \
+            .distinct()
 
-        unit_test_cases = UnitTestcase.objects.filter(assignment_id=assignment_id)
-        unit_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                      testcase__in=unit_test_cases)
+        for ts in timestamps:
+            result[ts] = {}
 
-        return {
-            'compiles': compiles_test_results,
-            'contains': contains_test_results,
-            'unit': unit_test_results
-        }
+            compiles_test_cases = CompilesTestcase.objects.filter(assignment_id=assignment_id)
+            compiles_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                              testcase__in=compiles_test_cases,
+                                                              timestamp=ts)
+
+            if compiles_test_results.exists():
+                result[ts]['compiles'] = {}
+                for ctr in compiles_test_results:
+                    result[ts]['compiles'][ctr.solution] = ctr
+
+            contains_test_cases = ContainsTestcase.objects.filter(assignment_id=assignment_id)
+            contains_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                              testcase__in=contains_test_cases,
+                                                              timestamp=ts)
+
+            if contains_test_results.exists():
+                result[ts]['contains'] = {}
+                for ctr in contains_test_results:
+                    ctc = ContainsTestcase.objects.get(id=ctr.testcase_id)
+                    if ctc not in result[ts]['contains']:
+                        result[ts]['contains'][ctc] = {}
+                    result[ts]['contains'][ctc][ctr.solution] = ctr
+
+            unit_test_cases = UnitTestcase.objects.filter(assignment_id=assignment_id)
+            unit_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                          testcase__in=unit_test_cases,
+                                                          timestamp=ts)
+
+            if unit_test_results.exists():
+                result[ts]['unit'] = {}
+                for utr in unit_test_results:
+                    result[ts]['unit'][utr.solution] = utr
+
+        return result
 
 
 class TestcaseContainsOverview(ListView):

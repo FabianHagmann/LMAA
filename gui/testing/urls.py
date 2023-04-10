@@ -1,5 +1,4 @@
 from django.urls import path
-
 from gui.testing import views
 from gui.testing.views import TestcaseListView, TestcaseDetailsView, TestcaseContainsOverview, TestcaseContainsAddNew, \
     TestcaseContainsDelete
