@@ -19,11 +19,15 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <td>Compiles</td>
+                    {% if has_compiles_testcase %}
+                        <td>Compiles</td>
+                    {% endif %}
                     {% for ctc in containsTestcases %}
                         <td>{{ ctc }}</td>
                     {% endfor %}
-                    <td>Unit test</td>
+                    {% if has_unit_testcase %}
+                        <td>Unit test</td>
+                    {% endif %}
                 </tr>
 
                 </thead>

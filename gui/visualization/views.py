@@ -35,6 +35,9 @@ class VisualizeSingleSolution(TemplateView):
         context['containsTestcases'] = ContainsTestcase.objects.filter(assignment_id=solution.assignment_id) \
             .order_by('phrase').all()
         context['test_results'] = self.__build_existing_test_results__(solution_id)
+        context['has_compiles_testcase'] = CompilesTestcase.objects.filter(
+            assignment_id=self.kwargs.get('ass')).exists()
+        context['has_unit_testcase'] = UnitTestcase.objects.filter(assignment_id=self.kwargs.get('ass')).exists()
 
         return context
 

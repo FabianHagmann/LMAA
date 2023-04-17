@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load template_custom_filters_visualization %}
 {% load bootstrap_icons %}
 
 {% block content %}
@@ -42,6 +43,19 @@
 
                     <script>
                         $(document).ready(function () {
+                            function formatTimestamp(timestamp) {
+                                const date = new Date(timestamp);
+
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we need to add 1
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const hours = String(date.getHours()).padStart(2, '0');
+                                const minutes = String(date.getMinutes()).padStart(2, '0');
+                                const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                            }
+
                             $('#assignment_select_{{ assignment.id }}').mousedown(function () {
                                 $.ajax({
                                     url: "{% url 'visualization-assignment-solutions' ass=assignment.id %}",
@@ -53,7 +67,7 @@
                                             var newRow = $("<tr></tr>");
 
                                             // Add columns to the new row
-                                            newRow.append($("<td></td>").text(solution.timestamp));
+                                            newRow.append($("<td></td>").text(formatTimestamp(solution.timestamp)));
                                             newRow.append($("<td></td>").text(solution.communicator));
 
                                             // Add action button with appropriate URL
@@ -93,7 +107,7 @@
                 <tbody>
                 {% for solution in solutions %}
                     <tr>
-                        <td>{{ solution.timestamp }}</td>
+                        <td>{{ solution.timestamp|format_timestamp }}</td>
                         <td>{{ solution.communicator }}</td>
                         <td>
                             <div class="btn-group" role="group">
