@@ -62,8 +62,8 @@
     {% if existing_solutions|length > 0 and existing_test_results|length > 0 %}
         {% for sol in existing_solutions %}
             <div class="mt-3">
-                <h4>Solution ({{ sol.timestamp }})</h4>
-                {# TODO: link to solution #}
+                <a class="h4" href="{% url 'visualize-solution' pk=sol.id %}">Solution ({{ sol.timestamp }})</a>
+
                 <table class="table table-striped">
                     <thead>
                     <tr>

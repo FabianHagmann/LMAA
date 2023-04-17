@@ -3,9 +3,11 @@ import threading
 from django.utils.datetime_safe import datetime
 
 from gui.assignments.models import Assignment, Solution
-from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase, Testcase, Testresult
+from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase, Testcase, CompilesTestresult, \
+    ContainsTestresult, UnitTestresult
 from scripts.testing import testing_manager as manager
-from scripts.testing.testing_executors import TestExecutionResponse
+from scripts.testing.testing_executors import TestExecutionCompilesResponse, TestExecutionContainsResponse, \
+    TestExecutionUnitResponse
 
 
 class TestingExecutionThread(threading.Thread):
@@ -21,7 +23,7 @@ class TestingExecutionThread(threading.Thread):
         try:
             assignment = Assignment.objects.get(id=self.assignment_id)
         except Assignment.DoesNotExist:
-            # TODO
+            # TODO: do error handling
             return
 
         # fetch all testcases for assignment
@@ -43,25 +45,49 @@ class TestingExecutionThread(threading.Thread):
         for solution in Solution.objects.filter(assignment=assignment).all():
             if check_compile is not None:
                 response = man.solution_compiles(solution.solution)
-                self.__store_execution_response__(response, solution, check_compile, execution_timestamp)
+                self.__store_execution_compile_response__(response, solution, check_compile, execution_timestamp)
 
             for ctc in contains_testcases:
                 response = man.solution_contains(solution.solution, ctc.phrase, ctc.times)
-                self.__store_execution_response__(response, solution, ctc, execution_timestamp)
+                self.__store_execution_contains_response__(response, solution, ctc, execution_timestamp)
 
             if unit_testcase is not None:
                 unit_test_code = self.__convert_file_to_string__(unit_testcase.file)
                 response = man.solution_unit_test(solution.solution, unit_test_code)
-                self.__store_execution_response__(response, solution, unit_testcase, execution_timestamp)
+                self.__store_execution_unit_response__(response, solution, unit_testcase, execution_timestamp)
 
-    def __store_execution_response__(self, response: TestExecutionResponse, solution: Solution, testcase: Testcase,
-                                     timestamp):
-        test_result = Testresult(timestamp=timestamp,
-                                 result=response.result,
-                                 message=response.message,
-                                 solution=solution,
-                                 testcase=testcase)
-        test_result.save()
+    def __store_execution_compile_response__(self, response: TestExecutionCompilesResponse, solution: Solution,
+                                             testcase: CompilesTestcase,
+                                             timestamp):
+        compile_test_result = CompilesTestresult(solution=solution,
+                                                 testcase=testcase,
+                                                 timestamp=timestamp,
+                                                 result=response.result,
+                                                 message=response.message)
+        compile_test_result.save()
+
+    def __store_execution_contains_response__(self, response: TestExecutionContainsResponse, solution: Solution,
+                                              testcase: ContainsTestcase,
+                                              timestamp):
+        contains_test_result = ContainsTestresult(solution=solution,
+                                                  testcase=testcase,
+                                                  timestamp=timestamp,
+                                                  result=response.get_result(),
+                                                  count_found=response.found,
+                                                  count_wanted=response.wanted)
+        contains_test_result.save()
+
+    def __store_execution_unit_response__(self, response: TestExecutionUnitResponse, solution: Solution,
+                                              testcase: UnitTestcase,
+                                              timestamp):
+        unit_test_result = UnitTestresult(solution=solution,
+                                          testcase=testcase,
+                                          timestamp=timestamp,
+                                          result=response.get_result(),
+                                          total_testcases=response.total_testcases,
+                                          success_testcases=response.success_testcases,
+                                          message=response.message)
+        unit_test_result.save()
 
     def __convert_file_to_string__(self, file) -> str:
         code = ''

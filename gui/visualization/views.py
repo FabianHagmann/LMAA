@@ -1,9 +1,9 @@
-from django.db.models.functions import datetime
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
 from gui.assignments.models import Assignment, Solution
-from gui.testing.models import Testresult, ContainsTestcase, CompilesTestcase, UnitTestcase
+from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
+    UnitTestresult
 
 
 class VisualizationOverview(TemplateView):
@@ -35,14 +35,12 @@ class VisualizeSingleSolution(TemplateView):
         context['containsTestcases'] = ContainsTestcase.objects.filter(assignment_id=solution.assignment_id) \
             .order_by('phrase').all()
         context['test_results'] = self.__build_existing_test_results__(solution_id)
-        context['has_compiles_testcase'] = CompilesTestcase.objects.filter(
-            assignment_id=self.kwargs.get('ass')).exists()
-        context['has_unit_testcase'] = UnitTestcase.objects.filter(assignment_id=self.kwargs.get('ass')).exists()
+        context['has_compiles_testcase'] = CompilesTestcase.objects.filter(assignment_id=solution.assignment_id).exists()
+        context['has_unit_testcase'] = UnitTestcase.objects.filter(assignment_id=solution.assignment_id).exists()
 
         return context
 
-    def __build_existing_test_results__(self, solution_id: int) -> dict[
-        datetime.datetime, dict[str, Testresult | dict[ContainsTestcase, Testresult]]]:
+    def __build_existing_test_results__(self, solution_id: int):
         """
             {
                 timestamp_1: {
@@ -60,29 +58,36 @@ class VisualizeSingleSolution(TemplateView):
         result = {}
 
         # get all executed timestamps for the assignment
-        timestamps = Testresult.objects.filter(solution_id=solution_id) \
-            .order_by('timestamp') \
+        timestamps_compiles = CompilesTestresult.objects.filter(solution_id=solution_id) \
             .values_list('timestamp', flat=True) \
             .distinct()
+        timestamps_contains = ContainsTestresult.objects.filter(solution_id=solution_id) \
+            .values_list('timestamp', flat=True) \
+            .distinct()
+        timestamps_unit = UnitTestresult.objects.filter(solution_id=solution_id) \
+            .values_list('timestamp', flat=True) \
+            .distinct()
+        timestamps = set(timestamps_compiles.union(timestamps_contains, timestamps_unit).order_by('timestamp'))
+
         assignment = Solution.objects.get(id=solution_id).assignment
 
         for ts in timestamps:
             result[ts] = {}
 
             compiles_test_cases = CompilesTestcase.objects.filter(assignment=assignment)
-            compiles_test_results = Testresult.objects.filter(testcase__assignment_id=assignment.id,
-                                                              solution_id=solution_id,
-                                                              testcase__in=compiles_test_cases,
-                                                              timestamp=ts)
+            compiles_test_results = CompilesTestresult.objects.filter(testcase__assignment_id=assignment.id,
+                                                                      solution_id=solution_id,
+                                                                      testcase__in=compiles_test_cases,
+                                                                      timestamp=ts)
 
             if compiles_test_results.exists():
                 result[ts]['compiles'] = compiles_test_results.first()
 
             contains_test_cases = ContainsTestcase.objects.filter(assignment=assignment)
-            contains_test_results = Testresult.objects.filter(testcase__assignment_id=assignment.id,
-                                                              solution_id=solution_id,
-                                                              testcase__in=contains_test_cases,
-                                                              timestamp=ts)
+            contains_test_results = ContainsTestresult.objects.filter(testcase__assignment_id=assignment.id,
+                                                                      solution_id=solution_id,
+                                                                      testcase__in=contains_test_cases,
+                                                                      timestamp=ts)
 
             if contains_test_results.exists():
                 result[ts]['contains'] = {}
@@ -92,10 +97,10 @@ class VisualizeSingleSolution(TemplateView):
                         result[ts]['contains'][ctc] = ctr
 
             unit_test_cases = UnitTestcase.objects.filter(assignment=assignment)
-            unit_test_results = Testresult.objects.filter(testcase__assignment_id=assignment.id,
-                                                          solution_id=solution_id,
-                                                          testcase__in=unit_test_cases,
-                                                          timestamp=ts)
+            unit_test_results = UnitTestresult.objects.filter(testcase__assignment_id=assignment.id,
+                                                              solution_id=solution_id,
+                                                              testcase__in=unit_test_cases,
+                                                              timestamp=ts)
 
             if unit_test_results.exists():
                 result[ts]['unit'] = unit_test_results.first()

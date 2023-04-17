@@ -1,4 +1,4 @@
-from scripts.testing.testing_executors import TestExecutionResponse
+from scripts.testing.testing_executors import TestExecutionCompilesResponse
 from scripts.testing.testing_manager import TestingManager
 
 solution = 'public class Aufgabe {\
@@ -30,7 +30,7 @@ public class AddSignTest {\
 }'
 
 
-def printResult(result: TestExecutionResponse) -> None:
+def printResult(result: TestExecutionCompilesResponse) -> None:
     print('--------------------------------------------')
     print('Result:')
     print(f'\tPass: {result.result}')

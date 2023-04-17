@@ -8,9 +8,9 @@ from django.utils.datetime_safe import datetime
 import utils.project_utils
 
 
-class TestExecutionResponse:
+class TestExecutionCompilesResponse:
     """
-    Class for storing the result of a test execution
+    Class for storing the result of a compiles test execution
     """
 
     def __init__(self, result: bool, message: str) -> None:
@@ -40,6 +40,64 @@ class TestExecutionResponse:
         self.result = new_result
 
 
+class TestExecutionContainsResponse:
+    """
+    Class for storing the result of a contains test execution
+    """
+
+    def __init__(self, wanted: int, found: int) -> None:
+        self.timestamp = datetime.now()
+        self.wanted = wanted
+        self.found = found
+
+    def __str__(self) -> str:
+        return f'[{self.timestamp}] {self.get_result()} ({self.wanted} of {self.found})'
+
+    def get_result(self) -> bool:
+        """
+        get the result value of the execution response based od wanted and found occurrences
+        :return: true if wanted and found are equal
+        """
+        return self.wanted == self.found
+
+    def increase_found(self) -> None:
+        """
+        increase the number of found occurrences
+        """
+        self.found += 1
+
+
+class TestExecutionUnitResponse:
+    """
+    Class for storing the result of a unit test execution
+    """
+
+    def __init__(self, total_testcases: int, success_testcases: int, message: str) -> None:
+        self.timestamp = datetime.now()
+        self.total_testcases = total_testcases
+        self.success_testcases = success_testcases
+        self.message = message
+
+    def __str__(self) -> str:
+        return f'[{self.timestamp}] {self.get_result()} ({self.success_testcases} of {self.total_testcases})'
+
+    def get_result(self) -> bool:
+        """
+        get the result value of the execution response based od wanted and found occurrences
+        :return: true if wanted and found are equal
+        """
+        return self.total_testcases == self.success_testcases
+
+    def add_to_message(self, new_message: str) -> None:
+        """
+        add a given message to the existing message
+
+        :param new_message: message to be added
+        """
+
+        self.message += new_message
+
+
 class TestExecutionException(Exception):
     """
     Exception to handle all errors that may occur during test execution.
@@ -55,39 +113,18 @@ class ContainsTestExecutor:
     Test executor for checking if a given solution contains a given phrase a given amount of times.
     """
 
-    def execute_test(self, solution: str, phrases: dict[str, int]) -> TestExecutionResponse:
+    def execute_test(self, solution: str, phrase: str, times: int) -> TestExecutionContainsResponse:
         """
         Execute the contains check
 
         :param solution: given solution to be checked
-        :param phrases: dict of phrases:times to be contained
-        :return: TestExecutionResponse containing status, timestamp and optional message if failed
-        """
-
-        response = TestExecutionResponse(True, '')
-        for phrase, times in phrases.items():
-            # for every phrase check
-            message = self.__check_phrase__(solution, phrase, times)
-            if message is not None:
-                response.add_to_message(message)
-                response.set_result(False)
-
-        return response
-
-    def __check_phrase__(self, solution: str, phrase: str, times: int) -> str | None:
-        """
-        Checks a single phrase
-
-        :param solution: given solution to be checked
-        :param phrase: phrase that is checks to be contained
-        :param times: number of times the phrase has to be contained
-        :return: error description if phrase does not appear exactly the right amount of times
+        :param phrase: phrase to be checked
+        :param times: number of times the phrase should be contained
+        :return: TestExecutionResponse with result
         """
 
         count = solution.count(phrase)
-        if count == times:
-            return None
-        return f'"{phrase}" appeared {count} times (not {times} times)'
+        return TestExecutionContainsResponse(wanted=times, found=count)
 
 
 class CompileTestExecutor:
@@ -96,7 +133,7 @@ class CompileTestExecutor:
     def __init__(self) -> None:
         self.__build_test_directory_structure__()
 
-    def execute_test(self, solution: str) -> TestExecutionResponse:
+    def execute_test(self, solution: str) -> TestExecutionCompilesResponse:
         """
         Executes a compile check for a given solution
 
@@ -104,7 +141,7 @@ class CompileTestExecutor:
         :return: TestExecutionResponse containing status, timestamp and optional message if failed
         """
 
-        response = TestExecutionResponse(True, '')
+        response = TestExecutionCompilesResponse(True, '')
 
         test_dir = self.__generate_test_dir_path__()
         try:
@@ -227,29 +264,21 @@ class UnitTestExecutor:
     def __init__(self) -> None:
         self.__build_test_directory_structure__()
 
-    def execute_test(self, solution: str, unit_test: str) -> TestExecutionResponse:
+    def execute_test(self, solution: str, unit_test: str) -> TestExecutionUnitResponse:
         """
         Executes a unit test check for a given solution and unit test
 
         :param solution: given solution to be checked
         :param unit_test: unit test used to check solution
-        :return: TestExecutionResponse containing status, timestamp and optional message containing success rate and
-        descriptions for failed tests
+        :return: TestExecutionUnitResponse containing result
         """
-
-        response = TestExecutionResponse(True, '')
 
         test_dir = self.__generate_test_dir_path__()
         try:
             test_files = self.__set_up_test_environment__(solution, unit_test, test_dir)
-            result = self.__execute_test_with_files__(test_dir, test_files, self.__get_java_class_name__(unit_test))
-
-            response.set_result(result[0])
-            response.add_to_message(f'\t{result[1]}\n')
-            response.add_to_message(f'\t{result[2]}')
+            response = self.__execute_test_with_files__(test_dir, test_files, self.__get_java_class_name__(unit_test))
         except TestExecutionException as tee:
-            response.set_result(False)
-            response.add_to_message(tee.__str__())
+            response = TestExecutionUnitResponse(total_testcases=-1, success_testcases=0, message=tee.__str__())
         finally:
             self.__clean_up_test_environment__(test_dir)
 
@@ -312,7 +341,8 @@ class UnitTestExecutor:
         # copy junit console jar to the testing directory
         try:
             junit_jar_name = 'junit-platform-console-standalone-1.9.2.jar'
-            shutil.copy(os.path.join(utils.project_utils.find_root_path(__file__), 'scripts', 'testing', 'helpers', junit_jar_name), test_dir)
+            shutil.copy(os.path.join(utils.project_utils.find_root_path(__file__), 'scripts', 'testing', 'helpers',
+                                     junit_jar_name), test_dir)
         except IOError:
             raise TestExecutionException('Error when adding junit-jar to test environment')
 
@@ -350,7 +380,7 @@ class UnitTestExecutor:
 
         shutil.rmtree(test_dir)
 
-    def __execute_test_with_files__(self, test_dir, test_files, test_classname) -> tuple[bool, str, str]:
+    def __execute_test_with_files__(self, test_dir, test_files, test_classname) -> TestExecutionUnitResponse:
         """
         Executes the compile check on a given existing .java file
 
@@ -406,4 +436,4 @@ class UnitTestExecutor:
             message += next_fail_message + '\n'
             search_index = next_fail + 5
 
-        return num_tests == num_successes, f'{num_successes}/{num_tests}', message
+        return TestExecutionUnitResponse(total_testcases=num_tests, success_testcases=num_successes, message=message)

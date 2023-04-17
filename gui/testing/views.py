@@ -6,7 +6,8 @@ from django.views.generic import TemplateView, FormView, ListView, DeleteView
 
 from gui.assignments.models import Assignment, Solution
 from gui.testing.forms import AssignmentTestcasesForm, ContainsTestcaseCreateForm
-from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase, Testresult
+from gui.testing.models import CompilesTestcase, ContainsTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
+    UnitTestresult
 from gui.testing.tasks import TestingExecutionThread
 
 
@@ -145,18 +146,24 @@ class TestcaseDetailsView(FormView):
         result = {}
 
         # get all executed timestamps for the assignment
-        timestamps = Testresult.objects.filter(testcase__assignment_id=assignment_id) \
-            .order_by('timestamp') \
+        timestamps_compiles = CompilesTestresult.objects.filter(testcase__assignment_id=assignment_id) \
             .values_list('timestamp', flat=True) \
             .distinct()
+        timestamps_contains = ContainsTestresult.objects.filter(testcase__assignment_id=assignment_id) \
+            .values_list('timestamp', flat=True) \
+            .distinct()
+        timestamps_unit = UnitTestresult.objects.filter(testcase__assignment_id=assignment_id) \
+            .values_list('timestamp', flat=True) \
+            .distinct()
+        timestamps = set(timestamps_compiles.union(timestamps_contains, timestamps_unit).order_by('timestamp'))
 
         for ts in timestamps:
             result[ts] = {}
 
             compiles_test_cases = CompilesTestcase.objects.filter(assignment_id=assignment_id)
-            compiles_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                              testcase__in=compiles_test_cases,
-                                                              timestamp=ts)
+            compiles_test_results = CompilesTestresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                                      testcase__in=compiles_test_cases,
+                                                                      timestamp=ts)
 
             if compiles_test_results.exists():
                 result[ts]['compiles'] = {}
@@ -164,9 +171,9 @@ class TestcaseDetailsView(FormView):
                     result[ts]['compiles'][ctr.solution] = ctr
 
             contains_test_cases = ContainsTestcase.objects.filter(assignment_id=assignment_id)
-            contains_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                              testcase__in=contains_test_cases,
-                                                              timestamp=ts)
+            contains_test_results = ContainsTestresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                                      testcase__in=contains_test_cases,
+                                                                      timestamp=ts)
 
             if contains_test_results.exists():
                 result[ts]['contains'] = {}
@@ -177,9 +184,9 @@ class TestcaseDetailsView(FormView):
                     result[ts]['contains'][ctc][ctr.solution] = ctr
 
             unit_test_cases = UnitTestcase.objects.filter(assignment_id=assignment_id)
-            unit_test_results = Testresult.objects.filter(testcase__assignment_id=assignment_id,
-                                                          testcase__in=unit_test_cases,
-                                                          timestamp=ts)
+            unit_test_results = UnitTestresult.objects.filter(testcase__assignment_id=assignment_id,
+                                                              testcase__in=unit_test_cases,
+                                                              timestamp=ts)
 
             if unit_test_results.exists():
                 result[ts]['unit'] = {}

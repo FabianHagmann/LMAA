@@ -50,8 +50,9 @@
                                         {% if test_results|lookup:timestamp|lookup:'contains'|lookup:ctc|get_attr:'result' %}
                                             {% bs_icon 'check2' color='green' size='1.5em' %}
                                         {% else %}
-                                            <div data-bs-toggle="tooltip" data-bs-placement="top"
-                                                 title="{{ test_results|lookup:timestamp|lookup:'contains'|lookup:ctc|get_attr:'message' }}">{% bs_icon 'x' color='red' size='1.5em' %}</div>
+                                            <div style="color: red; vertical-align: text-top;">{% bs_icon 'x' color='red' size='1.5em' %}
+                                                ({{ test_results|lookup:timestamp|lookup:'contains'|lookup:ctc|get_attr:'count_found' }}/{{ test_results|lookup:timestamp|lookup:'contains'|lookup:ctc|get_attr:'count_wanted' }})
+                                            </div>
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}
@@ -62,7 +63,10 @@
                                 {% if test_results|lookup:timestamp|lookup:'unit'|get_attr:'result' %}
                                     {% bs_icon 'check2' color='green' size='1.5em' %}
                                 {% else %}
-                                    {{ test_results|lookup:timestamp|lookup:'unit'|get_attr:'message'|slice:"0:5" }}
+                                    <div style="color: red; vertical-align: text-top;">
+                                        {% bs_icon 'x' color='red' size='1.5em' %}
+                                        ({{ test_results|lookup:timestamp|lookup:'unit'|lookup:ctc|get_attr:'success_testcases' }}/{{ test_results|lookup:timestamp|lookup:'unit'|lookup:ctc|get_attr:'total_testcases' }})
+                                    </div>
                                 {% endif %}
                             {% endif %}
                         </td>
