@@ -9,6 +9,9 @@
     <div id="search-icon-template" style="display:none;">
         {% bs_icon 'search' extra_classes="bi-valign-text-default" %}
     </div>
+    <div id="edit-icon-template" style="display:none;">
+        {% bs_icon 'pencil' extra_classes="bi-valign-text-default" %}
+    </div>
 
     <h1>Assignments overview</h1>
 
@@ -79,12 +82,24 @@
                                             newRow.append($("<td></td>").text(solution.communicator));
 
                                             // Add action button with appropriate URL
-                                            var iconSvg = $("#search-icon-template").html();
+                                            var iconSvgDetails = $("#search-icon-template").html();
                                             var detailsButton = $("<a></a>")
                                                 .addClass("btn btn-primary btn-sm")
                                                 .attr("href", "{% url 'visualize-solution' pk=0 %}".replace("0", solution.id))
-                                                .html(iconSvg);
-                                            var actionColumn = $("<td></td>").append(detailsButton);
+                                                .html(iconSvgDetails);
+
+                                            var iconSvgEdit = $("#edit-icon-template").html();
+                                            var editButton = $("<a></a>")
+                                                .addClass("btn btn-secondary btn-sm")
+                                                .attr("href", "{% url 'edit-solution' pk=0 %}".replace("0", solution.id))
+                                                .html(iconSvgEdit);
+
+                                            var btnDiv = $("<div></div>").append(detailsButton).append(editButton);
+                                            btnDiv.addClass("btn-group");
+
+                                            var actionColumn = $("<td></td>")
+                                            actionColumn.append(btnDiv)
+
                                             newRow.append(actionColumn);
 
                                             // Append the new row to the table
