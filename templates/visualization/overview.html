@@ -12,6 +12,9 @@
     <div id="edit-icon-template" style="display:none;">
         {% bs_icon 'pencil' extra_classes="bi-valign-text-default" %}
     </div>
+    <div id="compare-icon-template" style="display:none;">
+        {% bs_icon 'file-earmark-diff' extra_classes="bi-valign-text-default" %}
+    </div>
 
     <h1>Assignments overview</h1>
 
@@ -68,6 +71,10 @@
                             }
 
                             $('#assignment_select_{{ assignment.id }}').mousedown(function () {
+                                document.getElementById('compare-tab').style.display = "none";
+                                $("#compare-table-body").empty()
+                                document.getElementById('solutions-tab').style.display = "block";
+
                                 $.ajax({
                                     url: "{% url 'visualization-assignment-solutions' ass=assignment.id %}",
                                     success: function (response) {
@@ -94,7 +101,34 @@
                                                 .attr("href", "{% url 'edit-solution' pk=0 %}".replace("0", solution.id))
                                                 .html(iconSvgEdit);
 
-                                            var btnDiv = $("<div></div>").append(detailsButton).append(editButton);
+                                            var iconSvgCompare = $("#compare-icon-template").html();
+                                            var compareButton = $("<a></a>")
+                                                .addClass("btn btn-info btn-sm")
+                                                .html(iconSvgCompare);
+                                            compareButton.mousedown(function () {
+                                                document.getElementById('compare-tab').style.display = "block";
+
+                                                let table_body = $("#compare-table-body")
+
+                                                let children = table_body.children();
+                                                console.log(children)
+                                                for (let i = 0; i < children.length; i++) {
+                                                    const child = children[i];
+                                                    if (child.lastChild.textContent === formatTimestamp(solution.timestamp)) {
+                                                        return false;
+                                                    }
+                                                }
+
+                                                var newCompareRow = $("<tr></tr>")
+                                                var newCompareRowHidden = $("<td></td>").text(solution.id)
+                                                newCompareRowHidden.hide()
+                                                var newCompareRowTimestamp = $("<td></td>").text(formatTimestamp(solution.timestamp))
+
+                                                newCompareRow.append(newCompareRowHidden).append(newCompareRowTimestamp)
+                                                table_body.append(newCompareRow)
+                                            })
+
+                                            var btnDiv = $("<div></div>").append(detailsButton).append(editButton).append(compareButton);
                                             btnDiv.addClass("btn-group");
 
                                             var actionColumn = $("<td></td>")
@@ -112,13 +146,17 @@
                                 return false;
                             });
                         })
+
+                        $('#compare-btn').mousedown(function () {
+
+                        })
                     </script>
 
                 {% endfor %}
                 </tbody>
             </table>
         </div>
-        <div class="col-5">
+        <div id="solutions-tab" class="col-5" style="display: none">
             <table class="table table-striped" id="solution_table">
                 <thead>
                 <tr>
@@ -142,6 +180,19 @@
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div id="compare-tab" class="col-2" style="display: none">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td>Compare Solutions</td>
+                </tr>
+                </thead>
+                <tbody id="compare-table-body">
+
+                </tbody>
+            </table>
+            <a id="compare-btn" class="btn btn-primary">Compare</a>
         </div>
         <script>
             $(function () {
