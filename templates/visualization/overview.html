@@ -36,7 +36,15 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <a class="btn btn-primary btn-sm"
-                                   href="{% url 'assignments-details' pk=assignment.id %}">{% bs_icon 'search' extra_classes="bi-valign-text-default" %}</a>
+                                   href="{% url 'assignments-details' pk=assignment.id %}"
+                                   data-toggle="tooltip" data-placement="left"
+                                   title="Details">{% bs_icon 'search' extra_classes="bi-valign-text-default" %}</a>
+                                {% if assignment.id|has_solutions %}
+                                    <a class="btn btn-info btn-sm"
+                                       href="{% url 'visualization-assignment-similarity' ass=assignment.id %}"
+                                       data-toggle="tooltip" data-placement="right"
+                                       title="Solution similarity">{% bs_icon 'circle-half' extra_classes="bi-valign-text-default" %}</a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -72,11 +80,11 @@
 
                                             // Add action button with appropriate URL
                                             var iconSvg = $("#search-icon-template").html();
-                                            var actionButton = $("<a></a>")
+                                            var detailsButton = $("<a></a>")
                                                 .addClass("btn btn-primary btn-sm")
                                                 .attr("href", "{% url 'visualize-solution' pk=0 %}".replace("0", solution.id))
                                                 .html(iconSvg);
-                                            var actionColumn = $("<td></td>").append(actionButton);
+                                            var actionColumn = $("<td></td>").append(detailsButton);
                                             newRow.append(actionColumn);
 
                                             // Append the new row to the table
@@ -120,9 +128,11 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-2">
-
-        </div>
+        <script>
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
+        </script>
     </div>
 
 

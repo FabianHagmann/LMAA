@@ -1,9 +1,11 @@
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from numpy import ndarray
 
 from gui.assignments.models import Assignment, Solution
 from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
     UnitTestresult
+from scripts.visualization.metrics import metrics_manager as manager
 
 
 class VisualizationOverview(TemplateView):
@@ -35,7 +37,8 @@ class VisualizeSingleSolution(TemplateView):
         context['containsTestcases'] = ContainsTestcase.objects.filter(assignment_id=solution.assignment_id) \
             .order_by('phrase').all()
         context['test_results'] = self.__build_existing_test_results__(solution_id)
-        context['has_compiles_testcase'] = CompilesTestcase.objects.filter(assignment_id=solution.assignment_id).exists()
+        context['has_compiles_testcase'] = CompilesTestcase.objects.filter(
+            assignment_id=solution.assignment_id).exists()
         context['has_unit_testcase'] = UnitTestcase.objects.filter(assignment_id=solution.assignment_id).exists()
 
         return context
@@ -134,6 +137,74 @@ def __get_wrapped_solutions__(queryset):
 def fetch_solutions_for_assignment(request, ass):
     response = {
         'solutions': __get_wrapped_solutions__(Solution.objects.filter(assignment_id=ass).all())
+    }
+
+    return JsonResponse(response)
+
+
+class AssignmentSimilarity(TemplateView):
+    template_name = 'visualization/similarity/assignment_similarity.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        assignment_id = self.kwargs.get('ass')
+        context['assignment'] = Assignment.objects.get(id=assignment_id)
+        self.__get_similarity_metrics__(context)
+
+        return context
+
+    def __get_similarity_metrics__(self, context):
+        communicators = Solution.objects.filter(assignment=context['assignment']) \
+                                 .values_list('communicator', flat=True) \
+                                 .distinct()
+        context['communicators'] = communicators
+
+        solutions = Solution.objects.filter(assignment=context['assignment']).all()
+        context['solutions'] = solutions
+
+        man = manager.MetricsManager()
+
+        prepared_solutions = self.__prepare_assignment_solutions_single_source__(solutions)
+        single_source_cosine_sim_matrix = man.similarity_cosine_single_source(prepared_solutions)
+        single_source_cosine_total_average = man.similarity_cosine_average(solutions.count(), single_source_cosine_sim_matrix)
+        single_source_cosine_total_median = man.similarity_cosine_median(solutions.count(), single_source_cosine_sim_matrix)
+
+        context['single_source_cosine_sim_matrix'] = single_source_cosine_sim_matrix
+        context['single_source_cosine_total_average'] = single_source_cosine_total_average
+        context['single_source_cosine_total_median'] = single_source_cosine_total_median
+
+    def __prepare_assignment_solutions_single_source__(self, solutions):
+        prepared_solutions = []
+        for solution in solutions:
+            prepared_solutions.append(solution.solution)
+        return prepared_solutions
+
+
+def __get_wrapped_array__(cosine_sim_matrix: ndarray):
+    return list(cosine_sim_matrix.flatten())
+
+
+def fetch_assignment_similarity_for_communicator(request, ass, com):
+
+    prepared_solutions = {}
+    solutions = Solution.objects.filter(assignment_id=ass, communicator=com).all()
+    man = manager.MetricsManager()
+
+    # prepare solutions for similarity check
+    prepared_solutions = []
+    for solution in solutions:
+        prepared_solutions.append(solution.solution)
+
+    cosine_sim_matrix = man.similarity_cosine_single_source(prepared_solutions)
+    cosine_total_average = man.similarity_cosine_average(solutions.count(), cosine_sim_matrix)
+    cosine_total_median = man.similarity_cosine_median(solutions.count(), cosine_sim_matrix)
+    
+    response = {
+        'solutions': __get_wrapped_solutions__(solutions),
+        'cosine_total_average': cosine_total_average,
+        'cosine_total_median': cosine_total_median,
+        'cosine_sim_matrix': __get_wrapped_array__(cosine_sim_matrix)
     }
 
     return JsonResponse(response)

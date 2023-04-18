@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load template_custom_filters %}
+{% load template_custom_filters_visualization %}
+
+{% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        td.rotated-text {
+            height: 165px;
+            white-space: nowrap;
+            padding: 0 !important;
+        }
+
+        td.rotated-text > div {
+            transform: rotate(90deg);
+            width: 30px;
+        }
+
+        td.rotated-text > div > span {
+            padding: 5px 10px;
+            font-weight: normal;
+        }
+    </style>
+
+    <h1>Solution similarity for {{ assignment }}</h1>
+
+    <div class="my-5">
+        <div class="card w-25">
+            <div class="card-body">
+                <h5 class="card-title">Total assignment similarity</h5>
+                <div class="card-text">
+                    <table style="border: none" class="w-100">
+                        <tbody>
+                        <tr>
+                            <td class="col-10">Assignment average similarity</td>
+                            <td>{{ single_source_cosine_total_average|floatformat:3 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-10">Assignment mean similarity</td>
+                            <td>{{ single_source_cosine_total_median|floatformat:3 }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3" style="display: inline-block;">
+            <div class="card-body">
+                <h5 class="card-title">Assignment similarity matrix</h5>
+                <div class="card-text">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td></td>
+                            {% for solution in solutions %}
+                                <td class="rotated-text">
+                                    <div>
+                                        <span>
+                                            <a class="text-decoration-none text-dark"
+                                               href="{% url 'visualize-solution' pk=solution.id %}">
+                                                {{ solution.timestamp|date:"Y-m-d H:i:s" }}
+                                            </a>
+                                        </span>
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% for solution in solutions %}
+                            <tr>
+                                <td>
+                                    <a class="text-decoration-none text-dark"
+                                       href="{% url 'visualize-solution' pk=solution.id %}">
+                                        {{ solution.timestamp|date:"Y-m-d H:i:s" }}
+                                    </a>
+                                </td>
+                                {% for solution_second in solutions %}
+                                    {% with sim_value=single_source_cosine_sim_matrix|lookup:forloop.parentloop.counter0|lookup:forloop.counter0|floatformat:3|to_float %}
+                                        {% if sim_value >= 0.98 %}
+                                            <td style="background-color: green">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% elif sim_value >= 0.95 %}
+                                            <td style="background-color: greenyellow">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% elif sim_value >= 0.75 %}
+                                            <td style="background-color: yellow">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% elif sim_value >= 0.50 %}
+                                            <td style="background-color: orange">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% elif sim_value >= 0.25 %}
+                                            <td style="background-color: orangered">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% else %}
+                                            <td style="background-color: red">
+                                                {{ sim_value }}
+                                            </td>
+                                        {% endif %}
+                                    {% endwith %}
+
+                                {% endfor %}
+
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {#    {% if communicators|length > 1 %}#}
+    <div class="mb-5">
+        <h4>Similarity for specific communicators</h4>
+        <select id="communicator-selector" class="form-select mb-3" aria-label="communicators">
+            <option selected>Select communicator</option>
+            {% for com in communicators %}
+                <option value="{{ com }}">{{ com }}</option>
+            {% endfor %}
+        </select>
+        <script>
+            $(document).ready(function () {
+                function formatTimestamp(timestamp) {
+                    const date = new Date(timestamp);
+
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we need to add 1
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                }
+
+                function createTotalValuesCard(cosine_total_average, cosine_total_median) {
+                    $("#assignment-similarity-communicator-specific-totals").empty();
+
+                    const cardDiv = document.createElement("div");
+                    cardDiv.classList.add("card", "w-100");
+                    const cardBodyDiv = document.createElement("div");
+                    cardBodyDiv.classList.add("card-body");
+                    const cardTitle = document.createElement("h5");
+                    cardTitle.classList.add("card-title");
+                    cardTitle.textContent = "Total assignment similarity";
+                    const cardTextDiv = document.createElement("div");
+                    cardTextDiv.classList.add("card-text");
+                    const table = document.createElement("table");
+                    table.style.border = "none";
+                    table.classList.add("w-100");
+
+                    const tbody = document.createElement("tbody");
+
+                    const row1 = document.createElement("tr");
+                    const row1Cell1 = document.createElement("td");
+                    row1Cell1.classList.add("col-10");
+                    row1Cell1.textContent = "Assignment average similarity";
+                    const row1Cell2 = document.createElement("td");
+                    row1Cell2.textContent = cosine_total_average.toFixed(3);
+                    row1.appendChild(row1Cell1);
+                    row1.appendChild(row1Cell2);
+
+                    const row2 = document.createElement("tr");
+                    const row2Cell1 = document.createElement("td");
+                    row2Cell1.classList.add("col-10");
+                    row2Cell1.textContent = "Assignment mean similarity";
+                    const row2Cell2 = document.createElement("td");
+                    row2Cell2.textContent = cosine_total_median.toFixed(3);
+
+                    row2.appendChild(row2Cell1);
+                    row2.appendChild(row2Cell2);
+                    tbody.appendChild(row1);
+                    tbody.appendChild(row2);
+                    table.appendChild(tbody);
+                    cardTextDiv.appendChild(table);
+                    cardBodyDiv.appendChild(cardTitle);
+                    cardBodyDiv.appendChild(cardTextDiv);
+                    cardDiv.appendChild(cardBodyDiv);
+
+                    $("#assignment-similarity-communicator-specific-totals").append(cardDiv);
+                }
+
+                function createMatrixTable(solutions, cosine_sim_matrix) {
+                    $("#assignment-similarity-communicator-specific-table tbody").empty();
+
+                    {# add "header" row #}
+                    var headerRow = $("<tr></tr>")
+                    headerRow.append($("<td></td>"))
+                    solutions.forEach(function (solution) {
+                        const td = document.createElement("td");
+                        td.classList.add("rotated-text");
+                        const div = document.createElement("div");
+                        const span = document.createElement("span");
+                        span.textContent = formatTimestamp(solution.timestamp); // Set the content of the <span>
+                        div.appendChild(span);
+                        td.appendChild(div);
+
+                        headerRow.append(td)
+                    })
+                    $("#assignment-similarity-communicator-specific-table tbody").append(headerRow);
+
+
+                    {# add tbody rows #}
+                    let countOuter = 0
+                    const solution_count = solutions.length
+
+                    solutions.forEach(function (solution) {
+                        var newRow = $("<tr></tr>");
+
+                        // Add columns to the new row
+                        const headerRow = ($("<td></td>").text(formatTimestamp(solution.timestamp)));
+                        newRow.append(headerRow)
+
+                        let countInner = 0
+                        solutions.forEach(function (solution) {
+                            const cell_value = cosine_sim_matrix[solution_count * countOuter + countInner]
+                            const cell = ($("<td></td>")).text(cell_value.toFixed(3))
+
+                            if (cell_value >= 0.98) {
+                                cell.css("backgroundColor", "green");
+                            } else if (cell_value >= 0.95) {
+                                cell.css("backgroundColor", "greenyellow");
+                            } else if (cell_value >= 0.75) {
+                                cell.css("backgroundColor", "yellow");
+                            } else if (cell_value >= 0.5) {
+                                cell.css("backgroundColor", "orange");
+                            } else if (cell_value >= 0.25) {
+                                cell.css("backgroundColor", "orangered");
+                            } else {
+                                cell.css("backgroundColor", "red");
+                            }
+
+                            newRow.append(cell)
+
+                            countInner++;
+                        });
+
+                        // Append the new row to the table
+                        $("#assignment-similarity-communicator-specific-table tbody").append(newRow);
+
+                        countOuter++;
+                    });
+                    $("#assignment-similarity-communicator-specific-table").show()
+                }
+
+                $('#communicator-selector').change(function () {
+                    const selected_value = document.getElementById("communicator-selector").value
+                    if (selected_value === 'Select communicator') {
+                        document.getElementById('assignment-similarity-communicator-specific').style.display = "none";
+                        return false;
+                    } else {
+                        document.getElementById('assignment-similarity-communicator-specific').style.display = "block";
+                    }
+
+                    const baseUrl = "{% url 'visualization-assignment-similarity-communicator' ass=assignment.id com=0 %}";
+                    const finalUrl = baseUrl.replace('0', encodeURIComponent(selected_value));
+
+                    $.ajax({
+                        url: finalUrl,
+                        success: function (response) {
+
+                            createTotalValuesCard(response['cosine_total_average'], response['cosine_total_median'])
+                            createMatrixTable(response['solutions'], response['cosine_sim_matrix'])
+
+                        }
+                    });
+
+                    return false;
+                })
+            });
+        </script>
+        <div id="assignment-similarity-communicator-specific" style="display: none">
+            <div id="assignment-similarity-communicator-specific-totals" class="card w-25">
+            </div>
+
+            <div class="card mt-3" style="display: inline-block;">
+                <div class="card-body">
+                    <h5 class="card-title">Assignment similarity matrix</h5>
+                    <div class="card-text">
+                        <table id="assignment-similarity-communicator-specific-table" class="table table-bordered">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {#    {% endif %}#}
+
+{% endblock %}
