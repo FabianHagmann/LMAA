@@ -1,5 +1,5 @@
 from scripts.visualization.metrics.similarity_metric import SimilarityMetric
-from scripts.visualization.metrics.success_metric import SuccessMetric
+from scripts.visualization.metrics.success_metric import SuccessMetric, TestresultForSuccessMetric
 
 
 class MetricsManager:
@@ -20,10 +20,5 @@ class MetricsManager:
     def similarity_cosine_median(self, num_solutions, cosine_sim_matrix):
         return self.__similarity_metric__.calculate_total_similarity_median(num_solutions, cosine_sim_matrix)
 
-    def success_rate_single_solution(self, results):
-        # TODO: impl
-        pass
-
-    def success_rate_multiple_solutions(self):
-        # TODO: impl
-        pass
+    def success_rate_multiple_solutions(self, testresults: list[list[TestresultForSuccessMetric]]):
+        return self.__success_metric__.calculate_success_rate_multiple_solutions(testresults)

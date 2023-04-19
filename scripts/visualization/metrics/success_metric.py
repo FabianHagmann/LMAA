@@ -1,5 +1,6 @@
+from gui.testing.models import UnitTestresult, ContainsTestresult, CompilesTestresult
 
-class TestcaseForSuccessMetric:
+class TestresultForSuccessMetric:
 
     def __init__(self, weight: float, success: float) -> None:
         """
@@ -10,10 +11,40 @@ class TestcaseForSuccessMetric:
         self.weight = weight
         self.success = success
 
+    @staticmethod
+    def fromUnitTestresult(testresults: list[UnitTestresult]):
+        result_list = []
+        for single_testresult in testresults:
+            success_rate = single_testresult.success_testcases / single_testresult.total_testcases
+            result_list.append(TestresultForSuccessMetric(weight=single_testresult.total_testcases, success=success_rate))
+        return result_list
+
+    @staticmethod
+    def fromContainsTestresult(testresults: list[ContainsTestresult]):
+        result_list = []
+        for single_testresult in testresults:
+            if single_testresult.count_found < single_testresult.count_wanted:
+                success_rate = single_testresult.count_found / single_testresult.count_wanted
+            elif single_testresult.count_found > single_testresult.count_wanted:
+                success_rate = (single_testresult.count_found - single_testresult.count_wanted) / single_testresult.count_wanted
+            else:
+                success_rate = 1
+
+            result_list.append(TestresultForSuccessMetric(weight=single_testresult.count_wanted, success=success_rate))
+        return result_list
+
+    @staticmethod
+    def fromCompilesTestresult(testresults: list[CompilesTestresult]):
+        result_list = []
+        for single_testresult in testresults:
+            success_rate = 1 if single_testresult.result else 0
+            result_list.append(TestresultForSuccessMetric(weight=1, success=success_rate))
+        return result_list
+
 
 class SuccessMetric:
 
-    def calculate_success_rate_single_solution(self, testcases: list[TestcaseForSuccessMetric]) -> float:
+    def calculate_success_rate_single_solution(self, testcases: list[TestresultForSuccessMetric]) -> float:
         """
         calculates the success rate of all given testcases
         :param testcases: given testcases to calculate the success rate for
@@ -27,7 +58,7 @@ class SuccessMetric:
             weight_total += testcase.weight
             weight_success += (testcase.weight * testcase.success)
 
-        return weight_success/weight_total
+        return weight_success / weight_total
 
     def calculate_success_dict_multiple_solutions(self, testcase_2dim) -> [float]:
         """
@@ -41,7 +72,7 @@ class SuccessMetric:
 
         return success_rate_list
 
-    def calculate_success_rate_multiple_solutions(self,  testcase_2dim) -> float:
+    def calculate_success_rate_multiple_solutions(self, testcase_2dim) -> float:
         """
         calculates a single success rate of a 2 dimensional list of testcases
         :param testcase_2dim: list of list of testcases
@@ -53,4 +84,4 @@ class SuccessMetric:
         for success_rate in success_rate_list:
             success_rate_sum += success_rate
 
-        return success_rate_sum/len(success_rate_list)
+        return success_rate_sum / len(success_rate_list)

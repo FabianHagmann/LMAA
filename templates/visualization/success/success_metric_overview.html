@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load template_custom_filters_visualization %}
+{% load template_custom_filters %}
+
+{% block content %}
+
+    <h1>Test metrics</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <td>Tag</td>
+            <td>Assignments</td>
+            <td>Total success rate</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for tag in metrics.keys %}
+            {% with success_rate=metrics|lookup:tag|lookup:'success_rate' %}
+                {% if success_rate == '' %}
+                    <tr>
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% elif success_rate|floatformat:3|to_float >= 0.90 %}
+                    <tr style="background-color: green">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% elif success_rate|floatformat:3|to_float >= 0.80 %}
+                    <tr style="background-color: greenyellow">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% elif success_rate|floatformat:3|to_float >= 0.60 %}
+                    <tr style="background-color: yellow">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% elif success_rate|floatformat:3|to_float >= 0.40 %}
+                    <tr style="background-color: orange">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% elif success_rate|floatformat:3|to_float >= 0.20 %}
+                    <tr style="background-color: orangered">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% else %}
+                    <tr style="background-color: red">
+                        <td>{{ tag }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'num_assignments' }}</td>
+                        <td>{{ metrics|lookup:tag|lookup:'success_rate'|floatformat:3 }}</td>
+                    </tr>
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

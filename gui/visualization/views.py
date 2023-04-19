@@ -5,11 +5,12 @@ from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from numpy import ndarray
 
-from gui.assignments.models import Assignment, Solution
+from gui.assignments.models import Assignment, Solution, Tag
 from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
     UnitTestresult
 from gui.visualization.forms import SolutionEditForm
 from scripts.visualization.metrics import metrics_manager as manager
+from scripts.visualization.metrics.success_metric import TestresultForSuccessMetric
 
 
 class VisualizationOverview(TemplateView):
@@ -330,3 +331,52 @@ class EditSingleSolution(FormView):
                 result[ts]['unit'] = unit_test_results.first()
 
         return result
+
+
+class TestMetricVisualizationView(TemplateView):
+    template_name = 'visualization/success/success_metric_overview.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['metrics'] = self.__prepare_metrics__()
+
+        return context
+
+    def __prepare_metrics__(self) -> dict[Tag, dict[str, any]]:
+        man = manager.MetricsManager()
+        tag_metrics = {}
+
+        for tag in Tag.objects.all():
+            assignments_with_tag = Assignment.objects.filter(tags=tag)
+
+            test_result_list_for_tag = []
+            for assignment in assignments_with_tag:
+                test_result_list_for_assignment = []
+
+                for testresult in TestresultForSuccessMetric.fromCompilesTestresult(
+                        CompilesTestresult.objects.filter(solution__assignment=assignment)):
+                    test_result_list_for_assignment.append(testresult)
+
+                for testresult in TestresultForSuccessMetric.fromContainsTestresult(
+                        ContainsTestresult.objects.filter(solution__assignment=assignment)):
+                    test_result_list_for_assignment.append(testresult)
+
+                for testresult in TestresultForSuccessMetric.fromUnitTestresult(
+                        UnitTestresult.objects.filter(solution__assignment=assignment)):
+                    test_result_list_for_assignment.append(testresult)
+
+                if len(test_result_list_for_assignment) > 0:
+                    test_result_list_for_tag.append(test_result_list_for_assignment)
+
+            single_tag_metrics = {}
+            single_tag_metrics.__setitem__('num_assignments', len(assignments_with_tag))
+
+            if len(test_result_list_for_tag) > 0:
+                tag_success_metric = man.success_rate_multiple_solutions(test_result_list_for_tag)
+                single_tag_metrics.__setitem__('success_rate', tag_success_metric)
+            else:
+                single_tag_metrics.__setitem__('success_rate', '')
+            tag_metrics.__setitem__(tag, single_tag_metrics)
+
+        return tag_metrics
