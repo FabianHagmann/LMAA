@@ -20,8 +20,6 @@ class VisualizationOverview(TemplateView):
         context = super().get_context_data(**kwargs)
 
         assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')
-        current_assignment = assignments.first().id
-        solutions = Solution.objects.filter(assignment_id=current_assignment).order_by('timestamp')
 
         context['assignments'] = assignments
         context['solutions'] = []

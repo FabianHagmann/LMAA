@@ -188,7 +188,7 @@ class CompileTestExecutor:
             raise TestExecutionException('Solution could not be created')
         solution_file.write(solution)
 
-        return os.path.join(test_dir, java_classname + '.java')
+        return "\"" + os.path.join(test_dir, java_classname + '.java') + "\""
 
     def __clean_up_test_environment__(self, test_dir):
         """
@@ -222,8 +222,8 @@ class CompileTestExecutor:
         """
 
         try:
-            class_index = code.find('public class')
-            class_name = code[class_index + len('public class') + 1:] \
+            class_index = code.find('class')
+            class_name = code[class_index + len('class') + 1:] \
                 .split('{')[0]
             class_name = class_name.rstrip()
             if class_name[0].isupper():
@@ -346,8 +346,9 @@ class UnitTestExecutor:
         except IOError:
             raise TestExecutionException('Error when adding junit-jar to test environment')
 
-        return os.path.join(test_dir, solution_classname + '.java'), os.path.join(test_dir, unit_classname + '.java'), \
-            os.path.join(test_dir, 'junit-platform-console-standalone-1.9.2.jar')
+        return "\"" + os.path.join(test_dir, solution_classname + '.java') + "\"", "\"" + os.path.join(test_dir,
+                                                                                                       unit_classname + '.java') + "\"", \
+               "\"" + os.path.join(test_dir, 'junit-platform-console-standalone-1.9.2.jar') + "\""
 
     def __get_java_class_name__(self, code: str) -> str | None:
         """
