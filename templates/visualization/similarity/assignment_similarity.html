@@ -7,7 +7,6 @@
 
     <style>
         td.rotated-text {
-            height: 165px;
             white-space: nowrap;
             padding: 0 !important;
         }
@@ -34,79 +33,312 @@
                         <tbody>
                         <tr>
                             <td class="col-10">Assignment average similarity</td>
-                            <td>{{ single_source_cosine_total_average|floatformat:3 }}</td>
+                            <td>{{ single_source_cosine_total_average|floatformat:2 }}</td>
                         </tr>
                         <tr>
                             <td class="col-10">Assignment mean similarity</td>
-                            <td>{{ single_source_cosine_total_median|floatformat:3 }}</td>
+                            <td>{{ single_source_cosine_total_median|floatformat:2 }}</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="card mt-3" style="display: inline-block;">
-            <div class="card-body">
-                <h5 class="card-title">Assignment similarity matrix</h5>
-                <div class="card-text">
-                    <table class="table table-bordered">
-                        <tr>
-                            <td></td>
-                            {% for solution in solutions %}
-                                <td class="rotated-text">
-                                    <div>
+        <div class="row">
+            <div class="card mt-3 col-auto me-3" style="display: inline-block;">
+                <div class="card-body">
+                    <h5 class="card-title">Assignment cosine similarity matrix</h5>
+                    <div class="card-text">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td></td>
+                                {% for solution in solutions %}
+                                    <td class="rotated-text" style="height: 165px;">
+                                        <div>
                                         <span>
                                             <a class="text-decoration-none text-dark"
                                                href="{% url 'visualize-solution' pk=solution.id %}">
                                                 {{ solution.timestamp|date:"Y-m-d H:i:s" }}
                                             </a>
                                         </span>
-                                    </div>
-                                </td>
+                                        </div>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% for solution in solutions %}
+                                <tr>
+                                    <td>
+                                        <a class="text-decoration-none text-dark"
+                                           href="{% url 'visualize-solution' pk=solution.id %}">
+                                            {{ solution.timestamp|date:"Y-m-d H:i:s" }}
+                                        </a>
+                                    </td>
+                                    {% for solution_second in solutions %}
+                                        {% with sim_value=single_source_cosine_sim_matrix|lookup:forloop.parentloop.counter0|lookup:forloop.counter0|floatformat:2|to_float %}
+                                            {% if sim_value >= 0.98 %}
+                                                <td style="background-color: green">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% elif sim_value >= 0.95 %}
+                                                <td style="background-color: greenyellow">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% elif sim_value >= 0.75 %}
+                                                <td style="background-color: yellow">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% elif sim_value >= 0.50 %}
+                                                <td style="background-color: orange">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% elif sim_value >= 0.25 %}
+                                                <td style="background-color: orangered">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% else %}
+                                                <td style="background-color: red">
+                                                    {{ sim_value }}
+                                                </td>
+                                            {% endif %}
+                                        {% endwith %}
+
+                                    {% endfor %}
+
+                                </tr>
                             {% endfor %}
-                        </tr>
-                        {% for solution in solutions %}
-                            <tr>
-                                <td>
-                                    <a class="text-decoration-none text-dark"
-                                       href="{% url 'visualize-solution' pk=solution.id %}">
-                                        {{ solution.timestamp|date:"Y-m-d H:i:s" }}
-                                    </a>
-                                </td>
-                                {% for solution_second in solutions %}
-                                    {% with sim_value=single_source_cosine_sim_matrix|lookup:forloop.parentloop.counter0|lookup:forloop.counter0|floatformat:3|to_float %}
-                                        {% if sim_value >= 0.98 %}
-                                            <td style="background-color: green">
-                                                {{ sim_value }}
-                                            </td>
-                                        {% elif sim_value >= 0.95 %}
-                                            <td style="background-color: greenyellow">
-                                                {{ sim_value }}
-                                            </td>
-                                        {% elif sim_value >= 0.75 %}
-                                            <td style="background-color: yellow">
-                                                {{ sim_value }}
-                                            </td>
-                                        {% elif sim_value >= 0.50 %}
-                                            <td style="background-color: orange">
-                                                {{ sim_value }}
-                                            </td>
-                                        {% elif sim_value >= 0.25 %}
-                                            <td style="background-color: orangered">
-                                                {{ sim_value }}
-                                            </td>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3 col-auto me-3">
+                <div class="card-body">
+                    <h5 class="card-title">Assignment McCabe complexity</h5>
+                    <div class="card-text">
+                        <table class="table table-bordered">
+                            <tbody>
+                            {% for sol in solutions %}
+                                {% with mccabe=single_source_mccabe_complexity|lookup:sol.id %}
+                                    {% with diff=single_source_mccabe_complexity_mean|substract:mccabe %}
+                                        {% if diff|absvalue <= single_source_mccabe_complexity_sd|times:0.0625 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: green">{{ mccabe }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.125 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: greenyellow">{{ mccabe }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.25 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: yellow">{{ mccabe }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.5 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: orange">{{ mccabe }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: orangered">{{ mccabe }}</td>
+                                            </tr>
                                         {% else %}
-                                            <td style="background-color: red">
-                                                {{ sim_value }}
-                                            </td>
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td style="background-color: red">{{ mccabe }}</td>
+                                            </tr>
                                         {% endif %}
                                     {% endwith %}
-
-                                {% endfor %}
-
+                                {% endwith %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td>Mean</td>
+                                <td>{{ single_source_mccabe_complexity_mean }}</td>
                             </tr>
-                        {% endfor %}
-                    </table>
+                            <tr>
+                                <td>Standard deviation</td>
+                                <td>{{ single_source_mccabe_complexity_sd|floatformat:2 }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3 col-auto" style="display: inline-block;">
+                <div class="card-body">
+                    <h5 class="card-title">Assignment Halstead metrics</h5>
+                    <div class="card-text">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td></td>
+                                <td class="rotated-text" style="height: 150px;">
+                                    <div>
+                                        <span>Program Length</span>
+                                    </div>
+                                </td>
+                                <td class="rotated-text" style="height: 150px;">
+                                    <div>
+                                        <span>Vocabulary Size</span>
+                                    </div>
+                                </td>
+                                <td class="rotated-text" style="height: 150px;">
+                                    <div>
+                                        <span>Program Volume</span>
+                                    </div>
+                                </td>
+                                <td class="rotated-text" style="height: 150px;">
+                                    <div>
+                                        <span>Program Difficulty</span>
+                                    </div>
+                                </td>
+                                <td class="rotated-text" style="height: 150px;">
+                                    <div>
+                                        <span>Program Effort</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% for sol in solutions %}
+                                {% with effort=single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort" %}
+                                    {% with diff=single_source_halstead_effort_mean|substract:effort %}
+                                        {% if diff|absvalue <= single_source_halstead_effort_sd|times:0.125 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: green">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:0.25 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: greenyellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:0.5 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: yellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_halstead_effort_sd %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: orange">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:2 %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: orangered">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td>
+                                                    <a class="text-decoration-none text-dark"
+                                                       href="{% url 'visualize-solution' pk=sol.id %}">
+                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                                <td style="background-color: red">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endwith %}
+
+                            {% endfor %}
+                        </table>
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td>Effort Mean</td>
+                                <td>{{ single_source_halstead_effort_mean|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td>Effort Standard deviation</td>
+                                <td>{{ single_source_halstead_effort_sd|floatformat:2 }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

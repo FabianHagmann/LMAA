@@ -6,3 +6,4 @@ django-select2~=8.1.1
 django-widget-tweaks~=1.4.12
 django-bootstrap-icons~=0.8.2
 scikit-learn~=1.2.2
+numpy~=1.24.2

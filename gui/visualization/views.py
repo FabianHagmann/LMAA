@@ -1,3 +1,4 @@
+import statistics
 from datetime import datetime
 
 from django.http import JsonResponse
@@ -175,15 +176,38 @@ class AssignmentSimilarity(TemplateView):
         single_source_cosine_total_median = man.similarity_cosine_median(solutions.count(),
                                                                          single_source_cosine_sim_matrix)
 
+        prepared_solutions_with_ids = self.__prepare_assignment_solutions_single_source_with_ids__(solutions)
+        single_source_mccabe_complexity = man.mccabe_complexity(prepared_solutions_with_ids)
+        single_source_halstead_complexity = man.halstead_metrics(prepared_solutions_with_ids)
+        halstead_effort_list = self.__prepare_halstead_effort_list__(single_source_halstead_complexity)
+
         context['single_source_cosine_sim_matrix'] = single_source_cosine_sim_matrix
         context['single_source_cosine_total_average'] = single_source_cosine_total_average
         context['single_source_cosine_total_median'] = single_source_cosine_total_median
+        context['single_source_mccabe_complexity'] = single_source_mccabe_complexity
+        context['single_source_halstead_complexity'] = single_source_halstead_complexity
+        context['single_source_mccabe_complexity_mean'] = statistics.mean(single_source_mccabe_complexity.values())
+        context['single_source_mccabe_complexity_sd'] = statistics.stdev(single_source_mccabe_complexity.values())
+        context['single_source_halstead_effort_mean'] = statistics.mean(halstead_effort_list)
+        context['single_source_halstead_effort_sd'] = statistics.stdev(halstead_effort_list)
 
     def __prepare_assignment_solutions_single_source__(self, solutions):
         prepared_solutions = []
         for solution in solutions:
             prepared_solutions.append(solution.solution)
         return prepared_solutions
+
+    def __prepare_assignment_solutions_single_source_with_ids__(self, solutions):
+        prepared_solutions = {}
+        for solution in solutions:
+            prepared_solutions.__setitem__(solution.id, solution.solution)
+        return prepared_solutions
+
+    def __prepare_halstead_effort_list__(self, single_source_halstead_complexity):
+        effort_list = []
+        for metric in single_source_halstead_complexity.values():
+            effort_list.append(metric.get('Program Effort'))
+        return effort_list
 
 
 def __get_wrapped_array__(cosine_sim_matrix: ndarray):

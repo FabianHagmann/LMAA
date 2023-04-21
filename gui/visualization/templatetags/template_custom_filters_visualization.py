@@ -26,3 +26,18 @@ def to_float(string):
 @register.filter()
 def has_solutions(assignment_id):
     return Solution.objects.filter(assignment_id=assignment_id).exists()
+
+
+@register.filter()
+def absvalue(var):
+    return abs(var)
+
+
+@register.filter()
+def times(var, times):
+    return var * times
+
+
+@register.filter()
+def substract(var, sub):
+    return var - sub
