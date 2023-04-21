@@ -25,29 +25,10 @@
     <h1>Solution similarity for {{ assignment }}</h1>
 
     <div class="my-5">
-        <div class="card w-25">
-            <div class="card-body">
-                <h5 class="card-title">Total assignment similarity</h5>
-                <div class="card-text">
-                    <table style="border: none" class="w-100">
-                        <tbody>
-                        <tr>
-                            <td class="col-10">Assignment average similarity</td>
-                            <td>{{ single_source_cosine_total_average|floatformat:2 }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-10">Assignment mean similarity</td>
-                            <td>{{ single_source_cosine_total_median|floatformat:2 }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="card mt-3 col-auto me-3" style="display: inline-block;">
                 <div class="card-body">
-                    <h5 class="card-title">Assignment cosine similarity matrix</h5>
+                    <h5 class="card-title">Assignment cosine similarity</h5>
                     <div class="card-text">
                         <table class="table table-bordered">
                             <tr>
@@ -106,6 +87,18 @@
 
                                 </tr>
                             {% endfor %}
+                        </table>
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td class="col-10">Cosine average similarity</td>
+                                <td>{{ single_source_cosine_total_average|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-10">Cosine mean similarity</td>
+                                <td>{{ single_source_cosine_total_median|floatformat:2 }}</td>
+                            </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
