@@ -27,15 +27,19 @@ class TestcaseListView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        assignments_with_testcases = self.__build_assignments_with_testcases_list()
+        page = int(self.request.GET.get('page', 1))
+        page_size = 10
+
+        assignments_with_testcases = self.__build_assignments_with_testcases_list(page, page_size)
         context['assignments'] = assignments_with_testcases
+        context['page_obj'] = self.__build_page_obj__(page, page_size)
 
         return context
 
     @staticmethod
-    def __build_assignments_with_testcases_list():
+    def __build_assignments_with_testcases_list(page: int, page_size: int):
         assignments = []
-        for ass in Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask'):
+        for ass in Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')[page_size * (page - 1):(page_size * page)]:
             compiles_testcase_active = CompilesTestcase.objects.filter(assignment=ass, active=True).exists()
             contains_testcases = ContainsTestcase.objects.filter(assignment=ass).count()
             unit_testcase_active = UnitTestcase.objects.filter(assignment=ass).exists()
@@ -43,6 +47,21 @@ class TestcaseListView(TemplateView):
             assignments.append(
                 AssignmentWithTestcases(ass, compiles_testcase_active, contains_testcases, unit_testcase_active))
         return assignments
+
+    @staticmethod
+    def __build_page_obj__(page, page_size):
+        page_obj = {}
+        num_assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask').count()
+        max_pages = round(num_assignments/page_size) if (num_assignments % page_size == 0) else round(num_assignments/page_size) + 1
+
+        page_obj.__setitem__('has_previous', page != 1)
+        page_obj.__setitem__('previous_page_number', page - 1)
+        page_obj.__setitem__('number', page)
+        page_obj.__setitem__('num_pages', max_pages)
+        page_obj.__setitem__('has_next', page != max_pages)
+        page_obj.__setitem__('next_page_number', page + 1)
+
+        return page_obj
 
 
 class TestcaseDetailsView(FormView):

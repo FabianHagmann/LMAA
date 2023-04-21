@@ -20,12 +20,32 @@ class VisualizationOverview(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')
+        page = int(self.request.GET.get('page', 1))
+        page_size = 10
+
+        assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')[page_size * (page - 1):(page_size * page)]
 
         context['assignments'] = assignments
         context['solutions'] = []
+        context['page_obj'] = self.__build_page_obj__(page, page_size)
 
         return context
+
+    @staticmethod
+    def __build_page_obj__(page, page_size):
+        page_obj = {}
+        num_assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask').count()
+        max_pages = round(num_assignments / page_size) if (num_assignments % page_size == 0) else round(
+            num_assignments / page_size) + 1
+
+        page_obj.__setitem__('has_previous', page != 1)
+        page_obj.__setitem__('previous_page_number', page - 1)
+        page_obj.__setitem__('number', page)
+        page_obj.__setitem__('num_pages', max_pages)
+        page_obj.__setitem__('has_next', page != max_pages)
+        page_obj.__setitem__('next_page_number', page + 1)
+
+        return page_obj
 
 
 class VisualizeSingleSolution(TemplateView):
