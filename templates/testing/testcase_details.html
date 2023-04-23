@@ -67,11 +67,11 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <td>Compiles Check</td>
+                        <td class="col-3">Compiles Check</td>
                         {% for ctc in containsTestcases %}
-                            <td>{{ ctc }}</td>
+                            <td class="col-auto">{{ ctc }}</td>
                         {% endfor %}
-                        <td>Unit test</td>
+                        <td class="col-3">Unit test</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -88,25 +88,37 @@
                             </td>
                             {% for ctc in containsTestcases %}
                                 <td>
-                                    {% if ctc in existing_test_results|lookup:timestamp|lookup:'contains' %}
-                                        {% if sol in existing_test_results|lookup:timestamp|lookup:'contains'|lookup:ctc %}
-                                            {% if existing_test_results|lookup:timestamp|lookup:'contains'|lookup:ctc|lookup:sol|get_attr:'result' %}
-                                                {% bs_icon 'check2' color='green' size='1.5em' %}
-                                            {% else %}
-                                                {% bs_icon 'x' color='red' size='1.5em' %}
+                                    {% with testresults=existing_test_results|lookup:timestamp|lookup:'contains' %}
+                                        {% if ctc in testresults %}
+                                            {% if sol in testresults|lookup:ctc %}
+                                                {% if testresults|lookup:ctc|lookup:sol|get_attr:'result' %}
+                                                    {% bs_icon 'check2' color='green' size='1.5em' %}
+                                                {% else %}
+                                                    <div style="color: red">{% bs_icon 'x' color='red' size='1.5em' %} ({{ testresults|lookup:ctc|lookup:sol|get_attr:'count_found' }}/{{ testresults|lookup:ctc|lookup:sol|get_attr:'count_wanted' }})</div>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
-                                    {% endif %}
+                                    {% endwith %}
                                 </td>
                             {% endfor %}
                             <td>
-                                {% if sol in existing_test_results|lookup:timestamp|lookup:'unit' %}
-                                    {% if existing_test_results|lookup:timestamp|lookup:'unit'|lookup:sol|get_attr:'result' %}
-                                        {% bs_icon 'check2' color='green' size='1.5em' %}
-                                    {% else %}
-                                        {{ existing_test_results|lookup:timestamp|lookup:'unit'|lookup:sol|get_attr:'message'|slice:"0:5" }}
+                                {% with testresult=existing_test_results|lookup:timestamp|lookup:'unit' %}
+                                    {% if sol in testresult %}
+                                        {% if testresult|lookup:sol|get_attr:'result' %}
+                                            <div style="color: green">{% bs_icon 'check2' color='green' size='1.5em' %}
+                                                ({{ testresult|lookup:sol|get_attr:'success_testcases' }}/{{ testresult|lookup:sol|get_attr:'total_testcases' }})
+                                            </div>
+                                        {% elif testresult|lookup:sol|get_attr:'total_testcases' == -1 %}
+                                            <div style="color: red">{% bs_icon 'x' color='red' size='1.5em' %} (exec.
+                                                error)
+                                            </div>
+                                        {% else %}
+                                            <div style="color: red">{% bs_icon 'x' color='red' size='1.5em' %}
+                                                ({{ testresult|lookup:sol|get_attr:'success_testcases' }}/{{ testresult|lookup:sol|get_attr:'total_testcases' }})
+                                            </div>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
+                                {% endwith %}
                             </td>
                         </tr>
                     {% endfor %}

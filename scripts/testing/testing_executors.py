@@ -346,9 +346,8 @@ class UnitTestExecutor:
         except IOError:
             raise TestExecutionException('Error when adding junit-jar to test environment')
 
-        return "\"" + os.path.join(test_dir, solution_classname + '.java') + "\"", "\"" + os.path.join(test_dir,
-                                                                                                       unit_classname + '.java') + "\"", \
-               "\"" + os.path.join(test_dir, 'junit-platform-console-standalone-1.9.2.jar') + "\""
+        return os.path.join(test_dir, solution_classname + '.java'), os.path.join(test_dir, unit_classname + '.java'), \
+            os.path.join(test_dir, 'junit-platform-console-standalone-1.9.2.jar')
 
     def __get_java_class_name__(self, code: str) -> str | None:
         """

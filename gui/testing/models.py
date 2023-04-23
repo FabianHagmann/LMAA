@@ -1,4 +1,3 @@
-from django.core.validators import MaxValueValidator
 from django.db import models
 
 from gui.assignments.models import Assignment, Solution
@@ -66,8 +65,8 @@ class ContainsTestresult(models.Model):
     testcase = models.ForeignKey(ContainsTestcase, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(blank=True)
     result = models.BooleanField(blank=True)
-    count_wanted = models.PositiveIntegerField(blank=True)
-    count_found = models.PositiveIntegerField(blank=True)
+    count_wanted = models.IntegerField(blank=True)
+    count_found = models.IntegerField(blank=True)
 
     class Meta:
         db_table = "contains_testresult"
@@ -78,8 +77,8 @@ class UnitTestresult(models.Model):
     testcase = models.ForeignKey(UnitTestcase, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(blank=True)
     result = models.BooleanField(blank=True)
-    total_testcases = models.PositiveIntegerField()
-    success_testcases = models.PositiveIntegerField()
+    total_testcases = models.IntegerField()
+    success_testcases = models.IntegerField()
     message = models.CharField(max_length=8196, default=' ')
 
     class Meta:
