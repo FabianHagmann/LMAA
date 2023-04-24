@@ -47,4 +47,4 @@ class AssignmentTestcasesForm(forms.Form):
 
 class ContainsTestcaseCreateForm(forms.Form):
     phrase = forms.CharField(max_length=64, required=True)
-    times = forms.IntegerField(min_value=1, max_value=10, required=True, initial=1)
+    times = forms.IntegerField(min_value=0, max_value=10, required=True, initial=1)

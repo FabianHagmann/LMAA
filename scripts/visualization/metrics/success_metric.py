@@ -24,9 +24,19 @@ class TestresultForSuccessMetric:
         result_list = []
         for single_testresult in testresults:
             if single_testresult.count_found < single_testresult.count_wanted:
-                success_rate = single_testresult.count_found / single_testresult.count_wanted
+                if single_testresult.count_wanted != 0:
+                    # e.g. 1/2, 0/1
+                    success_rate = single_testresult.count_found / single_testresult.count_wanted
+                else:
+                    # invalid option: found < 0, wanted = 0
+                    success_rate = 0
             elif single_testresult.count_found > single_testresult.count_wanted:
-                success_rate = (single_testresult.count_found - single_testresult.count_wanted) / single_testresult.count_wanted
+                if single_testresult.count_wanted != 0:
+                    # e.g. 2/1, 3/2
+                    success_rate = (single_testresult.count_found - single_testresult.count_wanted) / single_testresult.count_wanted
+                else:
+                    # e.g. 1/0, 2/0
+                    success_rate = 0
             else:
                 success_rate = 1
 
