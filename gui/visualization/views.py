@@ -395,18 +395,22 @@ class TestMetricVisualizationView(TemplateView):
             test_result_list_for_tag = []
             for assignment in assignments_with_tag:
                 test_result_list_for_assignment = []
+                newest_compile, newest_contains, newest_unit = self.__get_newest_timestamps_for_assignment__(assignment)
 
-                for testresult in TestresultForSuccessMetric.fromCompilesTestresult(
-                        CompilesTestresult.objects.filter(solution__assignment=assignment)):
-                    test_result_list_for_assignment.append(testresult)
+                if newest_compile is not None:
+                    for testresult in TestresultForSuccessMetric.fromCompilesTestresult(
+                            CompilesTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_compile)):
+                        test_result_list_for_assignment.append(testresult)
 
-                for testresult in TestresultForSuccessMetric.fromContainsTestresult(
-                        ContainsTestresult.objects.filter(solution__assignment=assignment)):
-                    test_result_list_for_assignment.append(testresult)
+                if newest_contains is not None:
+                    for testresult in TestresultForSuccessMetric.fromContainsTestresult(
+                            ContainsTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_contains)):
+                        test_result_list_for_assignment.append(testresult)
 
-                for testresult in TestresultForSuccessMetric.fromUnitTestresult(
-                        UnitTestresult.objects.filter(solution__assignment=assignment)):
-                    test_result_list_for_assignment.append(testresult)
+                if newest_unit is not None:
+                    for testresult in TestresultForSuccessMetric.fromUnitTestresult(
+                            UnitTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_unit)):
+                        test_result_list_for_assignment.append(testresult)
 
                 if len(test_result_list_for_assignment) > 0:
                     test_result_list_for_tag.append(test_result_list_for_assignment)
@@ -422,3 +426,14 @@ class TestMetricVisualizationView(TemplateView):
             tag_metrics.__setitem__(tag, single_tag_metrics)
 
         return tag_metrics
+
+    def __get_newest_timestamps_for_assignment__(self, assignment: Assignment):
+        newest_compile = CompilesTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
+        newest_contains = ContainsTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
+        newest_unit = UnitTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
+
+        newest_compile_timestamp = newest_compile.first().timestamp if newest_compile.exists() else None
+        newest_contains_timestamp = newest_contains.first().timestamp if newest_contains.exists() else None
+        newest_unit_timestamp = newest_unit.first().timestamp if newest_unit.exists() else None
+
+        return newest_compile_timestamp, newest_contains_timestamp, newest_unit_timestamp

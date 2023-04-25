@@ -33,7 +33,7 @@ class TestresultForSuccessMetric:
             elif single_testresult.count_found > single_testresult.count_wanted:
                 if single_testresult.count_wanted != 0:
                     # e.g. 2/1, 3/2
-                    success_rate = (single_testresult.count_found - single_testresult.count_wanted) / single_testresult.count_wanted
+                    success_rate = single_testresult.count_wanted / single_testresult.count_found
                 else:
                     # e.g. 1/0, 2/0
                     success_rate = 0

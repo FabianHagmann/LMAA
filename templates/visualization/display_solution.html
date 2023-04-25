@@ -47,19 +47,21 @@
                         </td>
                         {% for ctc in containsTestcases %}
                             <td>
-                                {% with contains_results=test_results|lookup:timestamp|lookup:'contains' %}
-                                    {% if ctc in contains_results %}
-                                        {% if contains_results|lookup:ctc %}
-                                            {% if contains_results|lookup:ctc|get_attr:'result' %}
-                                                {% bs_icon 'check2' color='green' size='1.5em' %}
-                                            {% else %}
-                                                <div style="color: red; vertical-align: text-top;">{% bs_icon 'x' color='red' size='1.5em' %}
-                                                    ({{ contains_results|lookup:ctc|get_attr:'count_found' }}/{{ contains_results|lookup:ctc|get_attr:'count_wanted' }})
-                                                </div>
+                                {% if 'contains' in test_results|lookup:timestamp %}
+                                    {% with contains_results=test_results|lookup:timestamp|lookup:'contains' %}
+                                        {% if ctc in contains_results %}
+                                            {% if contains_results|lookup:ctc %}
+                                                {% if contains_results|lookup:ctc|get_attr:'result' %}
+                                                    {% bs_icon 'check2' color='green' size='1.5em' %}
+                                                {% else %}
+                                                    <div style="color: red; vertical-align: text-top;">{% bs_icon 'x' color='red' size='1.5em' %}
+                                                        ({{ contains_results|lookup:ctc|get_attr:'count_found' }}/{{ contains_results|lookup:ctc|get_attr:'count_wanted' }})
+                                                    </div>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
-                                    {% endif %}
-                                {% endwith %}
+                                    {% endwith %}
+                                {% endif %}
                             </td>
                         {% endfor %}
                         <td>

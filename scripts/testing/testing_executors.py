@@ -426,7 +426,7 @@ class UnitTestExecutor:
         message = ''
         search_index = 0
         while True:
-            next_fail = proc.stdout[search_index:].find('[X]')
+            next_fail = proc.stdout[:search_index].find('[X]')
             if next_fail == -1:
                 break
 
