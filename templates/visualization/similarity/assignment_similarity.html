@@ -111,69 +111,67 @@
                             <tbody>
                             {% for sol in solutions %}
                                 {% with mccabe=single_source_mccabe_complexity|lookup:sol.id %}
-                                    {% with diff=single_source_mccabe_complexity_mean|substract:mccabe %}
-                                        {% if diff|absvalue <= single_source_mccabe_complexity_sd|times:0.0625 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: green">{{ mccabe }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.125 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: greenyellow">{{ mccabe }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.25 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: yellow">{{ mccabe }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd|times:0.5 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: orange">{{ mccabe }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_mccabe_complexity_sd %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: orangered">{{ mccabe }}</td>
-                                            </tr>
-                                        {% else %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td style="background-color: red">{{ mccabe }}</td>
-                                            </tr>
-                                        {% endif %}
-                                    {% endwith %}
+                                    {% if mccabe <= single_source_mccabe_complexity_steps|lookup:1 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: green">{{ mccabe }}</td>
+                                        </tr>
+                                    {% elif mccabe <= single_source_mccabe_complexity_steps|lookup:2 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: greenyellow">{{ mccabe }}</td>
+                                        </tr>
+                                    {% elif mccabe <= single_source_mccabe_complexity_steps|lookup:3 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: yellow">{{ mccabe }}</td>
+                                        </tr>
+                                    {% elif mccabe <= single_source_mccabe_complexity_steps|lookup:4 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: orange">{{ mccabe }}</td>
+                                        </tr>
+                                    {% elif mccabe <= single_source_mccabe_complexity_steps|lookup:5 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: orangered">{{ mccabe }}</td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td style="background-color: red">{{ mccabe }}</td>
+                                        </tr>
+                                    {% endif %}
                                 {% endwith %}
                             {% endfor %}
                             </tbody>
@@ -228,95 +226,92 @@
                             </tr>
                             {% for sol in solutions %}
                                 {% with effort=single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort" %}
-                                    {% with diff=single_source_halstead_effort_mean|substract:effort %}
-                                        {% if diff|absvalue <= single_source_halstead_effort_sd|times:0.125 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: green">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:0.25 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: greenyellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:0.5 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: yellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_halstead_effort_sd %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: orange">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% elif diff|absvalue <= single_source_halstead_effort_sd|times:2 %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: orangered">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% else %}
-                                            <tr>
-                                                <td>
-                                                    <a class="text-decoration-none text-dark"
-                                                       href="{% url 'visualize-solution' pk=sol.id %}">
-                                                        {{ sol.timestamp|date:"Y-m-d H:i:s" }}
-                                                    </a>
-                                                </td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
-                                                <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
-                                                <td style="background-color: red">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
-                                            </tr>
-                                        {% endif %}
-                                    {% endwith %}
+                                    {% if effort <= single_source_halstead_effort_steps|lookup:1 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: green">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% elif effort <= single_source_halstead_effort_steps|lookup:2 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: greenyellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% elif effort <= single_source_halstead_effort_steps|lookup:3 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: yellow">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% elif effort <= single_source_halstead_effort_steps|lookup:4 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: orange">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% elif effort <= single_source_halstead_effort_steps|lookup:5 %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: orangered">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td>
+                                                <a class="text-decoration-none text-dark"
+                                                   href="{% url 'visualize-solution' pk=sol.id %}">
+                                                    {{ sol.timestamp|date:"Y-m-d H:i:s" }}
+                                                </a>
+                                            </td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Length" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Vocabulary Size" }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Volume"|floatformat:1 }}</td>
+                                            <td>{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Difficulty"|floatformat:1 }}</td>
+                                            <td style="background-color: red">{{ single_source_halstead_complexity|lookup:sol.id|lookup:"Program Effort"|floatformat:1 }}</td>
+                                        </tr>
+                                    {% endif %}
                                 {% endwith %}
-
                             {% endfor %}
                         </table>
                         <table class="table table-bordered">

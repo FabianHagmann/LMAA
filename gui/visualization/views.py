@@ -1,6 +1,7 @@
 import statistics
 from datetime import datetime
 
+import numpy as np
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
@@ -210,6 +211,8 @@ class AssignmentSimilarity(TemplateView):
         context['single_source_mccabe_complexity_sd'] = statistics.stdev(single_source_mccabe_complexity.values())
         context['single_source_halstead_effort_mean'] = statistics.mean(halstead_effort_list)
         context['single_source_halstead_effort_sd'] = statistics.stdev(halstead_effort_list)
+        context['single_source_mccabe_complexity_steps'] = np.linspace(min(single_source_mccabe_complexity.values()), max(single_source_mccabe_complexity.values()), 6)
+        context['single_source_halstead_effort_steps'] = np.linspace(min(halstead_effort_list), max(halstead_effort_list), 6)
 
     def __prepare_assignment_solutions_single_source__(self, solutions):
         prepared_solutions = []
