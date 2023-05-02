@@ -115,18 +115,15 @@ class SimilarityMetric:
             N1 = len(operators_count)
             N2 = len(operands_count)
 
-            program_length = n1 + n2
-            vocabulary_size = N1 + N2
-            program_volume = program_length * math.log2(vocabulary_size)
-            program_difficulty = (N1 / 2) * (n2 / N2)
-            program_effort = program_difficulty * program_volume
+            n = n1 + n2
+            N = N1 + N2
+            V = N * math.log2(n)
+            E = V / ((2 * n2) / (n1 * N2))
 
             return {
-                'Program Length': program_length,
-                'Vocabulary Size': vocabulary_size,
-                'Program Volume': program_volume,
-                'Program Difficulty': program_difficulty,
-                'Program Effort': program_effort
+                'Program Length': N,
+                'Program Volume': V,
+                'Program Effort': E
             }
 
         sol_lines = solution.split('\n')
