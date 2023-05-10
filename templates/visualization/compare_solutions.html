@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load template_custom_filters_visualization %}
+{% load template_custom_filters %}
+{% load bootstrap_icons %}
+
+{% block content %}
+    <h1>Comparison for {{ first_solution.assignment }} solutions</h1>
+    <table class="table table-borderless">
+        <tbody>
+        <tr>
+            <td class="col-6">
+                <a class="btn h5" href="{% url 'visualize-solution' pk=first_solution.pk %}">{{ first_solution.timestamp|format_timestamp }}</a>
+                <textarea style="font-family: 'Courier New', monospace; font-size: 0.8em" class="w-100" rows="20"
+                          disabled="disabled">{{ first_solution.solution }}
+                </textarea>
+            </td>
+            <td class="col-6">
+                <a class="btn h5" href="{% url 'visualize-solution' pk=second_solution.pk %}">{{ second_solution.timestamp|format_timestamp }}</a>
+                <textarea style="font-family: 'Courier New', monospace; font-size: 0.8em" class="w-100" rows="20"
+                          disabled="disabled">{{ second_solution.solution }}
+                </textarea>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

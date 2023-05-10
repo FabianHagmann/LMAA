@@ -63,9 +63,8 @@ class SimilarityMetric:
                         '*/') or '"' in line or "'" in line:
                     continue
 
-                if (
-                        'if' in line or 'else' in line or 'for' in line or 'while' in line or 'switch' in line or 'case' in line or 'default' in line) and not line.startswith(
-                        'import'):
+                if ('if' in line or 'else' in line or 'for' in line or 'while' in line or 'switch' in line
+                    or 'case' in line or 'default' in line) and not line.startswith('import'):
                     decision_points += 1
 
                 if line.count('?') > 0:

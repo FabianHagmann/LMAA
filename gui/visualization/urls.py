@@ -2,7 +2,7 @@ from django.urls import path
 
 from gui.visualization import views
 from gui.visualization.views import VisualizationOverview, VisualizeSingleSolution, AssignmentSimilarity, \
-    EditSingleSolution, TestMetricVisualizationView
+    EditSingleSolution, TestMetricVisualizationView, VisualizationCompareView
 
 urlpatterns = [
     path('visualization/overview', VisualizationOverview.as_view(), name='visualization-overview'),
@@ -14,5 +14,6 @@ urlpatterns = [
          name='visualization-assignment-similarity'),
     path('visualization/assignment/<int:ass>/similarity/communicator/<str:com>',
          views.fetch_assignment_similarity_for_communicator, name='visualization-assignment-similarity-communicator'),
-    path('visualization/testmetrics', TestMetricVisualizationView.as_view(), name='visualization-test-metrics-overview')
+    path('visualization/testmetrics', TestMetricVisualizationView.as_view(), name='visualization-test-metrics-overview'),
+    path('visualization/compare/<str:sol1>/<str:sol2>', VisualizationCompareView.as_view(), name='visualization-compare')
 ]

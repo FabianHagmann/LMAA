@@ -112,7 +112,9 @@
                                                 let table_body = $("#compare-table-body")
 
                                                 let children = table_body.children();
-                                                console.log(children)
+                                                if (children.length >= 2) {
+                                                    return false
+                                                }
                                                 for (let i = 0; i < children.length; i++) {
                                                     const child = children[i];
                                                     if (child.lastChild.textContent === formatTimestamp(solution.timestamp)) {
@@ -143,13 +145,7 @@
                                         });
                                     }
                                 });
-
-                                return false;
                             });
-                        })
-
-                        $('#compare-btn').mousedown(function () {
-
                         })
                     </script>
 
@@ -223,6 +219,20 @@
         <script>
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip()
+            })
+
+            $('#compare-btn').mousedown(function () {
+                const firstCompareId = document.getElementById("compare-table-body").firstChild.firstChild.textContent
+                const secondCompareId = document.getElementById("compare-table-body").lastChild.firstChild.textContent
+
+                console.log(firstCompareId)
+                console.log(secondCompareId)
+
+                let url = "{% url 'visualization-compare' sol1=0 sol2=0 %}";
+                url = url.replace("0", firstCompareId)
+                url = url.split("").reverse().join("").replace("0", secondCompareId.toString().split("").reverse().join("")).split("").reverse().join("");
+
+                window.location.replace(url);
             })
         </script>
     </div>

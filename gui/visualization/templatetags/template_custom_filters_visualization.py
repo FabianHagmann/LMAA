@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.filter()
 def format_timestamp(timestamp):
-    return type(timestamp)
+    return timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
 
 @register.filter()

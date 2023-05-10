@@ -440,3 +440,20 @@ class TestMetricVisualizationView(TemplateView):
         newest_unit_timestamp = newest_unit.first().timestamp if newest_unit.exists() else None
 
         return newest_compile_timestamp, newest_contains_timestamp, newest_unit_timestamp
+
+
+class VisualizationCompareView(TemplateView):
+    template_name = 'visualization/compare_solutions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        first_solution_id = self.kwargs.get('sol1')
+        second_solution_id = self.kwargs.get('sol2')
+        first_solution = Solution.objects.get(id=first_solution_id)
+        second_solution = Solution.objects.get(id=second_solution_id)
+
+        context['first_solution'] = first_solution
+        context['second_solution'] = second_solution
+
+        return context
