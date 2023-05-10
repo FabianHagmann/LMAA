@@ -58,6 +58,7 @@
 
                     <script>
                         $(document).ready(function () {
+
                             function formatTimestamp(timestamp) {
                                 const date = new Date(timestamp);
 
@@ -129,6 +130,11 @@
 
                                                 newCompareRow.append(newCompareRowHidden).append(newCompareRowTimestamp)
                                                 table_body.append(newCompareRow)
+
+                                                if (table_body.children().length === 2) {
+                                                    $("#compare-btn").show()
+                                                    $("#compare-btn-decoy").hide()
+                                                }
                                             })
 
                                             var btnDiv = $("<div></div>").append(detailsButton).append(editButton).append(compareButton);
@@ -215,10 +221,13 @@
                 </tbody>
             </table>
             <a id="compare-btn" class="btn btn-primary">Compare</a>
+            <a id="compare-btn-decoy" class="btn btn-primary disabled">Compare</a>
         </div>
         <script>
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip()
+                $("#compare-btn").hide()
+                $("#compare-btn-decoy").show()
             })
 
             $('#compare-btn').mousedown(function () {
