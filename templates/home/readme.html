@@ -1,0 +1,86 @@
+<h1>LMAA - Language Model Assignment Analyzer</h1>
+<p>This is LLMA (Language Model Assignment Analyser), an all-round software-system for uploading, solving and analysing
+educational assignments. With LLMs on the rise, educators face the challenge of considering the implications of
+generated content when creating exercises and exams. LMAA is a platform designed for collecting existing and novel
+assignments and comparing them in terms of language model generability. The resulting information, may give educators
+insight into the current state of LLMs in their field of work and support them in creating novel assignments which
+are not so easily solvable by language models.</p>
+<h2>Table of Contents</h2>
+<ol>
+<li>How to use<ol>
+<li>Setup</li>
+<li>Run</li>
+</ol>
+</li>
+<li>Advanced management tasks<ol>
+<li>Logging system</li>
+<li>Database system</li>
+<li>Communication system</li>
+</ol>
+</li>
+<li>More information</li>
+</ol>
+<h2>1. How to use</h2>
+<p>The LMAA-Application is split into four primary components: Assignments, Communication, Testing and Visualisation.</p>
+<p>To start, an educator may enter assignments and classification data. For assignments many language models may be called
+multiple times to generate a solution. To test solutions, educators may add and execute testcases. To get an overview,
+the test results and additional factors can be visualised.</p>
+<h3>1.1. Setup</h3>
+<p>For initial setup run <code>setup.py</code>. This will create the required file structures and the database, including language
+model detection.</p>
+<p><code>shell
+python setup.py</code></p>
+<h3>1.2. Run</h3>
+<p>The application can be started by running <code>run.py</code>. Make sure to finish the setup before starting the application.</p>
+<p><code>shell
+python run.py</code></p>
+<h2>2. Advanced management tasks</h2>
+<h4>2.1. Logging System</h4>
+<p>The logging system is structured as follows:</p>
+<ul>
+<li><strong>Console logging:</strong> Only for Django logging</li>
+<li><strong>Django logging:</strong> For Django logging and other system processes</li>
+</ul>
+<p>The logfile is located according to <code>config/system_config.yaml</code>. The default location is <code>logs/lmaa-log.log</code></p>
+<h4>2.2. Database System</h4>
+<p>The database system is handled by <a href="https://docs.djangoproject.com/en/4.1/topics/db/models/">Django Models</a>. The database
+structure is accordingly defined in <code>&lt;appname&gt;/models.py</code>.</p>
+<p>By default <code>SQLite</code> is used as a database system. The database file is located according to <code>config/system_config.yaml</code>.
+The default location is <code>data/lmaa-local.db</code></p>
+<h4>2.3. Communicator System</h4>
+<p>The communicator system can be dynamically extended. Correctly configured and implemented communicators will
+automatically be available in the <code>CommunicationManager</code> and the <code>django</code> frontend upon the next startup.</p>
+<h5>2.3.1. Adding new communicators</h5>
+<p>New communicators may be added at any point to <code>scripts.communication.impl</code>.
+When implementing a new communicator be sure to comply with the following instructions:</p>
+<ol>
+<li>Create new python file in <code>/scripts/communication/impl</code></li>
+<li>Create a class with the mandatory name-schema <code>___CommunicatorImpl</code> inheriting from <code>Communicator</code></li>
+<li>Define all request properties necessary for API calls in the class-property <code>properties</code><ol>
+<li>The property containing the user-input must always be named <code>prompt</code></li>
+<li>Properties may have one of 3 types (str,int,float), as implemented by <code>PropertyType</code>. If additional types are
+   required, the frontend must be adapted</li>
+<li>A property can be mandatory or optional. Optional properties must contain a default value</li>
+<li>A property may or may not be a configuration-property. Configuration properties are properties displayed in the
+   frontend form <code>/communication/new/configure</code></li>
+</ol>
+</li>
+<li>Define the display name of the Communicator in the class-property <code>name</code></li>
+<li>Implement <code>__init__</code> containing a super-call (<code>super().__init__('&lt;CommunicationName&gt;')</code>)</li>
+<li>Implement all abstract methods from <code>Communicator</code> as described in the documentation</li>
+</ol>
+<p>The provided implementation found in <code>communicator_openai_chat_completion.py</code> may be used as a guide.</p>
+<p>If all steps have been completed correctly the <code>CommunicationManager</code> will automatically detect the implementation and
+make it available via <code>get_implementations()</code>.</p>
+<h5>2.3.2. Removing outdated communicators</h5>
+<p>Outdated communicators may not necassarily be removed, but it is possible. Solutions stored in the database only contain
+the name of the implementation.</p>
+<p>When removing a communicator be sure to comply with the following instructions:</p>
+<ol>
+<li>Delete/Remove the implementation file in <code>/scripts/communication/in</code>. If not removed, django will automatically
+   re-detect the Communicator upon the next startup.</li>
+<li>Clean-up the database tables <code>llm</code> and <code>llm_property</code></li>
+</ol>
+<h2>3. More information</h2>
+<p>LMAA was developed as a part of the thesis <em>Large language models in computer science education: Collecting and 
+analysing LLM performance for introductory programming courses</em> at TU Wien Informatics by Fabian Hagmann.</p>
