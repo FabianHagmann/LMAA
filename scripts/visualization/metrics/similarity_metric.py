@@ -117,12 +117,10 @@ class SimilarityMetric:
             n = n1 + n2
             N = N1 + N2
             V = N * math.log2(n)
-            E = V / ((2 * n2) / (n1 * N2))
 
             return {
                 'Program Length': N,
-                'Program Volume': V,
-                'Program Effort': E
+                'Program Volume': V
             }
 
         sol_lines = solution.split('\n')
