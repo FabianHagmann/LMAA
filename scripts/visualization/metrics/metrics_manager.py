@@ -1,6 +1,5 @@
-from gui.assignments.models import Solution
 from scripts.visualization.metrics.similarity_metric import SimilarityMetric
-from scripts.visualization.metrics.success_metric import SuccessMetric, TestresultForSuccessMetric
+from scripts.visualization.metrics.success_metric import SuccessMetric, UnweightedTestResult
 
 
 class MetricsManager:
@@ -35,5 +34,6 @@ class MetricsManager:
             return_dict.__setitem__(id, self.__similarity_metric__.calculate_mccabe_complexity(sol))
         return return_dict
 
-    def success_rate_multiple_solutions(self, testresults: list[list[TestresultForSuccessMetric]]):
-        return self.__success_metric__.calculate_success_rate_multiple_solutions(testresults)
+    def success_rate_compiles(self, testresults: list[list[UnweightedTestResult]]) -> float:
+        return self.__success_metric__.calculate_success_rate_compiles(testresults)
+

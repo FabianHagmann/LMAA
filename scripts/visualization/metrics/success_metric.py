@@ -1,97 +1,106 @@
 from gui.testing.models import UnitTestresult, ContainsTestresult, CompilesTestresult
 
-class TestresultForSuccessMetric:
 
-    def __init__(self, weight: float, success: float) -> None:
+class UnweightedTestResult:
+
+    def __init__(self, success: bool) -> None:
         """
-        Creates a testcase result for use in success metric calculations
-        :param weight: weight of the particular testcase [1;inf]
-        :param success: success-rate of the particular testcase [0;1]
+        Creates a test result for use in compiles test success rate calculation
+        :param success: True if success, otherwise false
         """
-        self.weight = weight
         self.success = success
 
     @staticmethod
-    def fromUnitTestresult(testresults: list[UnitTestresult]):
+    def fromCompilesTestresults(testresults: list[CompilesTestresult]):
+        """
+        Converts a list of compiles testresults into a list of unweighted testresults
+        :param testresults: list of compiles testresults
+        :return: list of unweighted testresults
+        """
+
         result_list = []
         for single_testresult in testresults:
-            success_rate = single_testresult.success_testcases / single_testresult.total_testcases
-            result_list.append(TestresultForSuccessMetric(weight=single_testresult.total_testcases, success=success_rate))
+            result_list.append(UnweightedTestResult(success=single_testresult.result))
+        return result_list
+
+
+class WeightedExpectationTestResult:
+
+    def __init__(self, expectation: int, reality: int) -> None:
+        """
+        Creates a test result for use in contains and unit test success rate calculation
+        :param expectation: expected value
+        :param reality: found/success value
+        """
+        self.expectation = expectation
+        self.reality = reality
+
+    @staticmethod
+    def fromUnitTestresults(testresults: list[UnitTestresult]):
+        """
+        Converts a list of unit testresults into a list of weighted expectation testresults
+        :param testresults: list of unit testresults
+        :return: list of weighted expectation testresults
+        """
+        result_list = []
+        for single_testresult in testresults:
+            result_list.append(WeightedExpectationTestResult(expectation=single_testresult.total_testcases,
+                                                             reality=single_testresult.success_testcases))
         return result_list
 
     @staticmethod
     def fromContainsTestresult(testresults: list[ContainsTestresult]):
+        """
+        Converts a list of contains testresults into a list of weighted expectation testresults
+        :param testresults: list of contains testresults
+        :return: list of weighted expectation testresults
+        """
         result_list = []
         for single_testresult in testresults:
-            if single_testresult.count_found < single_testresult.count_wanted:
-                if single_testresult.count_wanted != 0:
-                    # e.g. 1/2, 0/1
-                    success_rate = single_testresult.count_found / single_testresult.count_wanted
-                else:
-                    # invalid option: found < 0, wanted = 0
-                    success_rate = 0
-            elif single_testresult.count_found > single_testresult.count_wanted:
-                if single_testresult.count_wanted != 0:
-                    # e.g. 2/1, 3/2
-                    success_rate = single_testresult.count_wanted / single_testresult.count_found
-                else:
-                    # e.g. 1/0, 2/0
-                    success_rate = 0
-            else:
-                success_rate = 1
-
-            result_list.append(TestresultForSuccessMetric(weight=single_testresult.count_wanted, success=success_rate))
-        return result_list
-
-    @staticmethod
-    def fromCompilesTestresult(testresults: list[CompilesTestresult]):
-        result_list = []
-        for single_testresult in testresults:
-            success_rate = 1 if single_testresult.result else 0
-            result_list.append(TestresultForSuccessMetric(weight=1, success=success_rate))
+            result_list.append(WeightedExpectationTestResult(expectation=single_testresult.count_wanted,
+                                                             reality=single_testresult.count_found))
         return result_list
 
 
 class SuccessMetric:
 
-    def calculate_success_rate_single_solution(self, testcases: list[TestresultForSuccessMetric]) -> float:
+    def calculate_success_rate_compiles(self, testresults_2dim) -> float:
         """
-        calculates the success rate of all given testcases
-        :param testcases: given testcases to calculate the success rate for
-        :return: success rate as a float [0;1]
+        calculates a single average success rate for compiles testresults of a 2 dim list
+        :param testresults_2dim: list of testresults 2dim
+        :return: compiles success rate as a float [0;1]
+        """
+        average_success_list = self.__calculate_unweighted_average_list_multiple_solutions__(testresults_2dim)
+
+        average_success_sum = 0
+        for success_rate in average_success_list:
+            average_success_sum += success_rate
+
+        return average_success_sum / len(average_success_list)
+
+    def __calculate_unweighted_average_list_multiple_solutions__(self, testresults_2dim) -> [float]:
+        """
+        calculates a list of unweighted averages from the given 2dim list of testresults
+        :param testresults_2dim: list of testcases 2dim
+        :return: list of unweighted averages for every set of testresults
+        """
+        average_success_list = []
+        for test_results_for_single_solution in testresults_2dim:
+            average_success_list.append(
+                self.__calculate_unweighted_average_single_solution__(test_results_for_single_solution))
+
+        return average_success_list
+
+    def __calculate_unweighted_average_single_solution__(self, testresults: list[UnweightedTestResult]) -> float:
+        """
+        calculates the unweighted average of the given testresults
+        :param testresults: given testcases to calculate the success rate for
+        :return: unweighted average as a float [0;1]
         """
 
-        weight_total = 0
-        weight_success = 0
+        average_success = 0
 
-        for testcase in testcases:
-            weight_total += testcase.weight
-            weight_success += (testcase.weight * testcase.success)
+        for testresult in testresults:
+            average_success += (1 if testresult.success > 0 else 0)
 
-        return weight_success / weight_total
-
-    def calculate_success_dict_multiple_solutions(self, testcase_2dim) -> [float]:
-        """
-        calculates the success rates of a 2 dimensional list of testcases
-        :param testcase_2dim: list of list of testcases
-        :return: list of success_rates for every set of testcases
-        """
-        success_rate_list = []
-        for testcases in testcase_2dim:
-            success_rate_list.append(self.calculate_success_rate_single_solution(testcases))
-
-        return success_rate_list
-
-    def calculate_success_rate_multiple_solutions(self, testcase_2dim) -> float:
-        """
-        calculates a single success rate of a 2 dimensional list of testcases
-        :param testcase_2dim: list of list of testcases
-        :return: success rate as a float [0;1]
-        """
-        success_rate_list = self.calculate_success_dict_multiple_solutions(testcase_2dim)
-
-        success_rate_sum = 0
-        for success_rate in success_rate_list:
-            success_rate_sum += success_rate
-
-        return success_rate_sum / len(success_rate_list)
+        return average_success / len(testresults)

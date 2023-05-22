@@ -12,7 +12,7 @@ from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase,
     UnitTestresult
 from gui.visualization.forms import SolutionEditForm
 from scripts.visualization.metrics import metrics_manager as manager
-from scripts.visualization.metrics.success_metric import TestresultForSuccessMetric
+from scripts.visualization.metrics.success_metric import UnweightedTestResult
 
 
 class VisualizationOverview(TemplateView):
@@ -24,7 +24,8 @@ class VisualizationOverview(TemplateView):
         page = int(self.request.GET.get('page', 1))
         page_size = 10
 
-        assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')[page_size * (page - 1):(page_size * page)]
+        assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask')[
+                      page_size * (page - 1):(page_size * page)]
 
         context['assignments'] = assignments
         context['solutions'] = []
@@ -211,8 +212,10 @@ class AssignmentSimilarity(TemplateView):
         context['single_source_mccabe_complexity_sd'] = statistics.stdev(single_source_mccabe_complexity.values())
         context['single_source_halstead_volume_mean'] = statistics.mean(halstead_volume_list)
         context['single_source_halstead_volume_sd'] = statistics.stdev(halstead_volume_list)
-        context['single_source_mccabe_complexity_steps'] = np.linspace(min(single_source_mccabe_complexity.values()), max(single_source_mccabe_complexity.values()), 6)
-        context['single_source_halstead_volume_steps'] = np.linspace(min(halstead_volume_list), max(halstead_volume_list), 6)
+        context['single_source_mccabe_complexity_steps'] = np.linspace(min(single_source_mccabe_complexity.values()),
+                                                                       max(single_source_mccabe_complexity.values()), 6)
+        context['single_source_halstead_volume_steps'] = np.linspace(min(halstead_volume_list),
+                                                                     max(halstead_volume_list), 6)
 
     def __prepare_assignment_solutions_single_source__(self, solutions):
         prepared_solutions = []
@@ -385,50 +388,46 @@ class TestMetricVisualizationView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         context['metrics'] = self.__prepare_metrics__()
+        context['overall_success_rate'] = context['metrics']['overall_success_rate']
+        context['metrics'].pop('overall_success_rate')
 
         return context
 
     def __prepare_metrics__(self) -> dict[Tag, dict[str, any]]:
         man = manager.MetricsManager()
-        tag_metrics = {}
+        success_metrics = {}
 
-        for tag in Tag.objects.all():
+        compiles_test_results_overall = []
+        for tag in Tag.objects.all().order_by('name'):
             assignments_with_tag = Assignment.objects.filter(tags=tag)
 
-            test_result_list_for_tag = []
+            compiles_test_results_for_tag = []
             for assignment in assignments_with_tag:
-                test_result_list_for_assignment = []
                 newest_compile, newest_contains, newest_unit = self.__get_newest_timestamps_for_assignment__(assignment)
 
+                compiles_test_results_for_assignment = []
                 if newest_compile is not None:
-                    for testresult in TestresultForSuccessMetric.fromCompilesTestresult(
+                    for testresult in UnweightedTestResult.fromCompilesTestresults(
                             CompilesTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_compile)):
-                        test_result_list_for_assignment.append(testresult)
+                        compiles_test_results_for_assignment.append(testresult)
 
-                if newest_contains is not None:
-                    for testresult in TestresultForSuccessMetric.fromContainsTestresult(
-                            ContainsTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_contains)):
-                        test_result_list_for_assignment.append(testresult)
-
-                if newest_unit is not None:
-                    for testresult in TestresultForSuccessMetric.fromUnitTestresult(
-                            UnitTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_unit)):
-                        test_result_list_for_assignment.append(testresult)
-
-                if len(test_result_list_for_assignment) > 0:
-                    test_result_list_for_tag.append(test_result_list_for_assignment)
+                if len(compiles_test_results_for_assignment) > 0:
+                    compiles_test_results_for_tag.append(compiles_test_results_for_assignment)
+                    compiles_test_results_overall.append(compiles_test_results_for_assignment)
 
             single_tag_metrics = {}
             single_tag_metrics.__setitem__('num_assignments', len(assignments_with_tag))
 
-            if len(test_result_list_for_tag) > 0:
-                tag_success_metric = man.success_rate_multiple_solutions(test_result_list_for_tag)
-                single_tag_metrics.__setitem__('success_rate', tag_success_metric)
+            if len(compiles_test_results_for_tag) > 0:
+                tag_success_metric = man.success_rate_compiles(compiles_test_results_for_tag)
+                single_tag_metrics.__setitem__('tag_success_rate', tag_success_metric)
             else:
-                single_tag_metrics.__setitem__('success_rate', '')
-            tag_metrics.__setitem__(tag, single_tag_metrics)
+                single_tag_metrics.__setitem__('tag_success_rate', '')
 
-        return tag_metrics
+            success_metrics.__setitem__(tag, single_tag_metrics)
+
+        success_metrics.__setitem__('overall_success_rate',  man.success_rate_compiles(compiles_test_results_overall))
+        return success_metrics
 
     def __get_newest_timestamps_for_assignment__(self, assignment: Assignment):
         newest_compile = CompilesTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
