@@ -20,6 +20,12 @@ class MetricsManager:
     def similarity_cosine_median(self, num_solutions, cosine_sim_matrix):
         return self.__similarity_metric__.calculate_total_cosine_similarity_median(num_solutions, cosine_sim_matrix)
 
+    def similarity_cosine_min(self, cosine_sim_matrix):
+        return self.__similarity_metric__.calculate_cosine_similarity_min(cosine_sim_matrix)
+
+    def similarity_cosine_max(self, cosine_sim_matrix):
+        return self.__similarity_metric__.calculate_cosine_similarity_max(cosine_sim_matrix)
+
     def halstead_metrics(self, solutions: dict[int, str]) -> dict[int, dict[str, float]]:
         return_dict = {}
         for id in solutions.keys():
@@ -35,5 +41,5 @@ class MetricsManager:
         return return_dict
 
     def success_rate_compiles(self, testresults: list[list[UnweightedTestResult]]) -> float:
-        return self.__success_metric__.calculate_success_rate_compiles(testresults)
+        return self.__success_metric__.calculate_success_rate_compiles_multiple(testresults)
 

@@ -183,6 +183,20 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mt-3 mx-0">
+                <a class="btn btn-primary mx-auto" id="export_similarity_report"
+                   href="#">{% bs_icon 'list-columns-reverse' extra_classes="bi-valign-default" %} Export report</a>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('#export_similarity_report').mousedown(function () {
+                        window.open('export/similarity')
+
+                        return false;
+                    });
+                })
+            </script>
         </div>
         <div id="solutions-tab" class="col-5" style="display: none">
             <table class="table table-striped" id="solution_table">

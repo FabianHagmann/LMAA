@@ -1,8 +1,9 @@
+import os
 import statistics
 from datetime import datetime
 
 import numpy as np
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404, HttpResponse
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from numpy import ndarray
@@ -11,6 +12,7 @@ from gui.assignments.models import Assignment, Solution, Tag
 from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
     UnitTestresult
 from gui.visualization.forms import SolutionEditForm
+from gui.visualization.tasks import __get_report_folder_path__, generate_similarity_report_for_export
 from scripts.visualization.metrics import metrics_manager as manager
 from scripts.visualization.metrics.success_metric import UnweightedTestResult
 
@@ -408,7 +410,8 @@ class TestMetricVisualizationView(TemplateView):
                 compiles_test_results_for_assignment = []
                 if newest_compile is not None:
                     for testresult in UnweightedTestResult.fromCompilesTestresults(
-                            CompilesTestresult.objects.filter(solution__assignment=assignment, timestamp=newest_compile)):
+                            CompilesTestresult.objects.filter(solution__assignment=assignment,
+                                                              timestamp=newest_compile)):
                         compiles_test_results_for_assignment.append(testresult)
 
                 if len(compiles_test_results_for_assignment) > 0:
@@ -426,7 +429,7 @@ class TestMetricVisualizationView(TemplateView):
 
             success_metrics.__setitem__(tag, single_tag_metrics)
 
-        success_metrics.__setitem__('overall_success_rate',  man.success_rate_compiles(compiles_test_results_overall))
+        success_metrics.__setitem__('overall_success_rate', man.success_rate_compiles(compiles_test_results_overall))
         return success_metrics
 
     def __get_newest_timestamps_for_assignment__(self, assignment: Assignment):
@@ -456,3 +459,15 @@ class VisualizationCompareView(TemplateView):
         context['second_solution'] = second_solution
 
         return context
+
+
+def export_similarity_report(request):
+    file_path = os.path.join(__get_report_folder_path__(), 'similarity_report.csv')
+
+    generate_similarity_report_for_export()
+
+    with open(file_path, 'r') as report:
+        response = HttpResponse(report.read(), content_type="text/csv")
+        response['Content-Disposition'] = "attachment;filename=similarity_report.csv"
+        return response
+

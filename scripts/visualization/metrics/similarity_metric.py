@@ -49,26 +49,34 @@ class SimilarityMetric:
         mask = np.ones(cosine_sim_matrix.shape, dtype=bool)
         np.fill_diagonal(mask, 0)
 
-        average_similarity = np.median(cosine_sim_matrix * mask) / (num_solutions * (num_solutions - 1))
+        average_similarity = np.median(cosine_sim_matrix * mask)
         return average_similarity
 
+    def calculate_cosine_similarity_min(self, cosine_sim_matrix):
+        return cosine_sim_matrix.min()
+
+    def calculate_cosine_similarity_max(self, cosine_sim_matrix):
+        mask = np.ones(cosine_sim_matrix.shape, dtype=bool)
+        np.fill_diagonal(mask, 0)
+
+        return (cosine_sim_matrix * mask).max()
+
     def calculate_mccabe_complexity(self, solution: str) -> int:
+        keywords = ["if", "else", "while", "case", "for", "switch", "do", "continue", "break", "&&", "||", "?", ":",
+                    "catch", "finally", "throw", "throws", "default", "return"]
+
         def extract_decision_points(solution_lines):
             decision_points = 0
 
             for line in solution_lines:
                 line = line.strip()
                 # Skip comments and string literals
-                if line.startswith('//') or line.startswith('/*') or line.startswith('*') or line.startswith(
-                        '*/') or '"' in line or "'" in line:
+                if line.startswith('//') or line.startswith('/*') or line.startswith('*') or line.endswith(
+                        '*/') or line.startswith('import'):
                     continue
 
-                if ('if' in line or 'else' in line or 'for' in line or 'while' in line or 'switch' in line
-                    or 'case' in line or 'default' in line) and not line.startswith('import'):
-                    decision_points += 1
-
-                if line.count('?') > 0:
-                    decision_points += line.count('?')
+                for word in keywords:
+                    decision_points += line.count(word)
 
             return decision_points
 

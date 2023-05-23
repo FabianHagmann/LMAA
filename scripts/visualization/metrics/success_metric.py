@@ -64,7 +64,7 @@ class WeightedExpectationTestResult:
 
 class SuccessMetric:
 
-    def calculate_success_rate_compiles(self, testresults_2dim) -> float:
+    def calculate_success_rate_compiles_multiple(self, testresults_2dim) -> float:
         """
         calculates a single average success rate for compiles testresults of a 2 dim list
         :param testresults_2dim: list of testresults 2dim
