@@ -41,5 +41,5 @@ class MetricsManager:
         return return_dict
 
     def success_rate_compiles(self, testresults: list[list[UnweightedTestResult]]) -> float:
-        return self.__success_metric__.calculate_success_rate_compiles_multiple(testresults)
+        return self.__success_metric__.calculate_tag_compiles_success_rate(testresults)
 

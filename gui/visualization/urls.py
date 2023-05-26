@@ -17,4 +17,5 @@ urlpatterns = [
     path('visualization/successmetrics', TestMetricVisualizationView.as_view(), name='visualization-test-metrics-overview'),
     path('visualization/compare/<str:sol1>/<str:sol2>', VisualizationCompareView.as_view(), name='visualization-compare'),
     path('visualization/export/similarity', views.export_similarity_report, name='visualization-export-similarity'),
+    path('visualization/export/success', views.export_success_report, name='visualization-export-success'),
 ]

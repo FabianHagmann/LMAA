@@ -12,7 +12,8 @@ from gui.assignments.models import Assignment, Solution, Tag
 from gui.testing.models import ContainsTestcase, CompilesTestcase, UnitTestcase, CompilesTestresult, ContainsTestresult, \
     UnitTestresult
 from gui.visualization.forms import SolutionEditForm
-from gui.visualization.tasks import __get_report_folder_path__, generate_similarity_report_for_export
+from gui.visualization.tasks import __get_report_folder_path__, generate_similarity_report_for_export, \
+    generate_success_report_for_export
 from scripts.visualization.metrics import metrics_manager as manager
 from scripts.visualization.metrics.success_metric import UnweightedTestResult
 
@@ -471,3 +472,13 @@ def export_similarity_report(request):
         response['Content-Disposition'] = "attachment;filename=similarity_report.csv"
         return response
 
+
+def export_success_report(request):
+    file_path = os.path.join(__get_report_folder_path__(), 'success_report.csv')
+
+    generate_success_report_for_export()
+
+    with open(file_path, 'r') as report:
+        response = HttpResponse(report.read(), content_type="text/csv")
+        response['Content-Disposition'] = "attachment;filename=success_report.csv"
+        return response
