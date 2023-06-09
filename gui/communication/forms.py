@@ -34,7 +34,7 @@ class LanguageModelRequestConfigurationForm(forms.Form):
     """
 
     # Input for number of repeats
-    repeats = forms.IntegerField(min_value=1, max_value=5, initial=1, required=True)
+    repeats = forms.IntegerField(min_value=1, max_value=10, initial=1, required=True)
 
     def __init__(self, *args, **kwargs):
         """

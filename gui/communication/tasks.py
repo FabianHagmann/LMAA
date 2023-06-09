@@ -62,8 +62,14 @@ class SolutionRequestThread(threading.Thread):
                 request_parameters.__setitem__('prompt', ass.assignment)
                 communication_response = selected_communicator.send_request(request_parameters=request_parameters)
                 if communication_response.code == 200:
+                    solution_text = communication_response.payload
+                    if solution_text.startswith('```'):
+                        solution_text = solution_text[solution_text.find('\n')+1:len(solution_text)]
+                    if solution_text.endswith('```'):
+                        solution_text = solution_text[0:solution_text.rfind('```')]
+
                     sol = Solution(timestamp=datetime.now(), communicator=self.instance.model.name,
-                                   solution=communication_response.payload,
+                                   solution=solution_text,
                                    assignment=ass, is_new=True)
                     sol.save()
                 else:

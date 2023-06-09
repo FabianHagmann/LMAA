@@ -13,8 +13,8 @@ def generate_similarity_report_for_export():
     similarity_report_file = open(os.path.join(__get_report_folder_path__(), 'similarity_report.csv'), 'w')
 
     # generate header
-    header_columns = ['semester', 'sheet', 'task', 'subtask', 'ass_length', 'tags'
-                                                                            'ass_cosine_avg', 'ass_cosine_min',
+    header_columns = ['semester', 'sheet', 'task', 'subtask', 'ass_length', 'tags',
+                      'ass_cosine_avg', 'ass_cosine_min',
                       'ass_cosine_max', 'ass_cosine_med',
                       'ass_mccabe_mean', 'ass_mccabe_sd', 'ass_mccabe_min', 'ass_mccabe_max', 'ass_mccabe_med',
                       'ass_halstead_mean', 'ass_halstead_sd', 'ass_halstead_min', 'ass_halstead_max',
@@ -122,15 +122,18 @@ def generate_success_report_for_export():
         current_contains = []
         for i in range(len(distinct_times)):
             contains_diffs_with_times = []
-            contains_testcases_with_times = ContainsTestcase.objects.filter(assignment=sol.assignment, times=distinct_times[i]['times'])
+            contains_testcases_with_times = ContainsTestcase.objects.filter(assignment=sol.assignment,
+                                                                            times=distinct_times[i]['times'])
             if contains_testcases_with_times.count() < 1:
                 current_contains.append('')
                 continue
             for testcase in contains_testcases_with_times:
                 try:
-                    contains_for_testcase = ContainsTestresult.objects.filter(solution=sol, testcase=testcase).order_by('-timestamp').first()
+                    contains_for_testcase = ContainsTestresult.objects.filter(solution=sol, testcase=testcase).order_by(
+                        '-timestamp').first()
                     if contains_for_testcase is not None:
-                        current_contains_for_testcase = abs(contains_for_testcase.count_wanted - contains_for_testcase.count_found)
+                        current_contains_for_testcase = abs(
+                            contains_for_testcase.count_wanted - contains_for_testcase.count_found)
                     else:
                         current_contains_for_testcase = None
                 except ContainsTestresult.DoesNotExist:
