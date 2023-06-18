@@ -1,11 +1,21 @@
 from django import template, forms
 from django.utils.safestring import mark_safe
 
+"""
+Custom Django text for templating
+"""
+
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
 def bootstrap_form_group(context, field, addtl_classes=''):
+    """
+    Creates a custom bootstrap-styled input tag
+    :param field: django form field to be displayed
+    :param addtl_classes: additional css classes to be used in the form field
+    :return: marked safe html for template
+    """
     css_classes = ' '.join([
         'form-group',
         addtl_classes,
@@ -21,6 +31,12 @@ def bootstrap_form_group(context, field, addtl_classes=''):
 
 @register.simple_tag(takes_context=True)
 def bootstrap_form_group_no_label(context, field, addtl_classes=''):
+    """
+    Creates a custom bootstrap-styled input tag without a label
+    :param field: django form field to be displayed
+    :param addtl_classes: additional css classes to be used in the form field
+    :return: marked safe html for template
+    """
     css_classes = ' '.join([
         'form-group',
         addtl_classes,

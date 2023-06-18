@@ -2,16 +2,23 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from gui.assignments.models import Assignment
-from gui.testing.models import CompilesTestcase, UnitTestcase, ContainsTestcase
+from gui.testing.models import CompilesTestcase, UnitTestcase
 
 
 class JavaFileValidator:
+    """
+    Validator to check if the filetype of any file-input is ".java"
+    """
+
     def __call__(self, value):
         if not value.name.endswith('.java'):
             raise ValidationError('Only .java files are allowed.')
 
 
 class AssignmentTestcasesForm(forms.Form):
+    """
+    Form containing all types of testcases available for an assignment
+    """
     radio_choices = [('0', 'Inactive'), ('1', 'Active')]
 
     compilesTestcase = forms.ChoiceField(
@@ -29,6 +36,10 @@ class AssignmentTestcasesForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        """
+        Init method. Sets compiles and unit testcases in accordance to the database entry
+        """
+
         # pop custom kwargs and call super init
         assignment_pk = kwargs.pop('ass', None)
         super().__init__(*args, **kwargs)
@@ -46,5 +57,8 @@ class AssignmentTestcasesForm(forms.Form):
 
 
 class ContainsTestcaseCreateForm(forms.Form):
+    """
+    Form for adding or editing a contains testcase
+    """
     phrase = forms.CharField(max_length=64, required=True)
     times = forms.IntegerField(min_value=0, max_value=10, required=True, initial=1)

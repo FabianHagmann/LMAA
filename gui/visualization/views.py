@@ -3,7 +3,7 @@ import statistics
 from datetime import datetime
 
 import numpy as np
-from django.http import JsonResponse, Http404, HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from numpy import ndarray
@@ -19,6 +19,9 @@ from scripts.visualization.metrics.success_metric import UnweightedTestResult
 
 
 class VisualizationOverview(TemplateView):
+    """
+    Paginated view for displaying assignments and solutions with the option to open the similarity metrics
+    """
     template_name = 'visualization/overview.html'
 
     def get_context_data(self, **kwargs):
@@ -38,6 +41,13 @@ class VisualizationOverview(TemplateView):
 
     @staticmethod
     def __build_page_obj__(page, page_size):
+        """
+        build the template variables necessary for pagination
+        :param page: page number
+        :param page_size: page size
+        :return: template object for pagination
+        """
+
         page_obj = {}
         num_assignments = Assignment.objects.order_by('semester', 'sheet', 'task', 'subtask').count()
         max_pages = round(num_assignments / page_size) if (num_assignments % page_size == 0) else round(
@@ -54,6 +64,10 @@ class VisualizationOverview(TemplateView):
 
 
 class VisualizeSingleSolution(TemplateView):
+    """
+    view for single solution visualization
+    """
+
     template_name = 'visualization/display_solution.html'
 
     def get_context_data(self, **kwargs):
@@ -74,6 +88,10 @@ class VisualizeSingleSolution(TemplateView):
 
     def __build_existing_test_results__(self, solution_id: int):
         """
+            Build a datastructure containing all testcases/-results of an assignment for use in the template.
+
+            Structure:
+            '''
             {
                 timestamp_1: {
                     'compiles': Testresult,
@@ -85,6 +103,7 @@ class VisualizeSingleSolution(TemplateView):
                 },
                 ...
             }
+            '''
         """
 
         result = {}
@@ -103,24 +122,25 @@ class VisualizeSingleSolution(TemplateView):
 
         assignment = Solution.objects.get(id=solution_id).assignment
 
+        # for every timestamp...
         for ts in timestamps:
             result[ts] = {}
 
+            # fetch and add compiles testcases/-results
             compiles_test_cases = CompilesTestcase.objects.filter(assignment=assignment)
             compiles_test_results = CompilesTestresult.objects.filter(testcase__assignment_id=assignment.id,
                                                                       solution_id=solution_id,
                                                                       testcase__in=compiles_test_cases,
                                                                       timestamp=ts)
-
             if compiles_test_results.exists():
                 result[ts]['compiles'] = compiles_test_results.first()
 
+            # fetch and add contains testcases/-results
             contains_test_cases = ContainsTestcase.objects.filter(assignment=assignment)
             contains_test_results = ContainsTestresult.objects.filter(testcase__assignment_id=assignment.id,
                                                                       solution_id=solution_id,
                                                                       testcase__in=contains_test_cases,
                                                                       timestamp=ts)
-
             if contains_test_results.exists():
                 result[ts]['contains'] = {}
                 for ctr in contains_test_results:
@@ -128,19 +148,23 @@ class VisualizeSingleSolution(TemplateView):
                     if ctc not in result[ts]['contains']:
                         result[ts]['contains'][ctc] = ctr
 
+            # fetch and add unit testcases/-results
             unit_test_cases = UnitTestcase.objects.filter(assignment=assignment)
             unit_test_results = UnitTestresult.objects.filter(testcase__assignment_id=assignment.id,
                                                               solution_id=solution_id,
                                                               testcase__in=unit_test_cases,
                                                               timestamp=ts)
-
             if unit_test_results.exists():
                 result[ts]['unit'] = unit_test_results.first()
 
         return result
 
 
-class SolutionWrapper():
+class SolutionWrapper:
+    """
+    Serializable wrapper for Solutions
+    """
+
     def __init__(self, id, timestamp, communicator) -> None:
         super().__init__()
         self.id = id
@@ -156,6 +180,12 @@ class SolutionWrapper():
 
 
 def __get_wrapped_solutions__(queryset):
+    """
+    convert a queryset of solutions into serializable SolutionWrappers
+    :param queryset: query set to be converted
+    :return: converted array of SolutionWrappers
+    """
+
     solutions = []
     for solution in queryset:
         wrapped_solution = SolutionWrapper(solution.id, solution.timestamp, solution.communicator)
@@ -164,6 +194,13 @@ def __get_wrapped_solutions__(queryset):
 
 
 def fetch_solutions_for_assignment(request, ass):
+    """
+    request endpoint for fetching all solutions of an assignment
+    :param request: request parameters
+    :param ass: assignment to fetch the solutions for
+    :return: JsonResponse containing the assignments' solutions
+    """
+
     response = {
         'solutions': __get_wrapped_solutions__(Solution.objects.filter(assignment_id=ass).all())
     }
@@ -172,6 +209,10 @@ def fetch_solutions_for_assignment(request, ass):
 
 
 class AssignmentSimilarity(TemplateView):
+    """
+    view to display the results of the similarity metrics for a given assignment
+    """
+
     template_name = 'visualization/similarity/assignment_similarity.html'
 
     def get_context_data(self, **kwargs):
@@ -221,18 +262,33 @@ class AssignmentSimilarity(TemplateView):
                                                                      max(halstead_volume_list), 6)
 
     def __prepare_assignment_solutions_single_source__(self, solutions):
+        """
+        converts a queryset of solutions into an array
+        :param solutions: queryset of solutions
+        :return: converted array of solutions
+        """
         prepared_solutions = []
         for solution in solutions:
             prepared_solutions.append(solution.solution)
         return prepared_solutions
 
     def __prepare_assignment_solutions_single_source_with_ids__(self, solutions):
+        """
+        converts a queryset of solutions into a dict mapped by id
+        :param solutions: queryset of solutions
+        :return: converted dict of solutions
+        """
         prepared_solutions = {}
         for solution in solutions:
             prepared_solutions.__setitem__(solution.id, solution.solution)
         return prepared_solutions
 
     def __prepare_halstead_volume_list__(self, single_source_halstead_complexity):
+        """
+        Convert the halstead metrics into an array of values
+        :param single_source_halstead_complexity: halstead metrics dict exported from metrics_manager
+        :return: converted array of program volumes
+        """
         volume_list = []
         for metric in single_source_halstead_complexity.values():
             volume_list.append(metric.get('Program Volume'))
@@ -240,11 +296,23 @@ class AssignmentSimilarity(TemplateView):
 
 
 def __get_wrapped_array__(cosine_sim_matrix: ndarray):
+    """
+    converts the 2dim array of cosine similarities into a 1dim array
+    :param cosine_sim_matrix:
+    :return:
+    """
     return list(cosine_sim_matrix.flatten())
 
 
 def fetch_assignment_similarity_for_communicator(request, ass, com):
-    prepared_solutions = {}
+    """
+    endpoint to request the cosine similarity metrics for a specific assignment and communicator
+    :param request: request properties
+    :param ass: assignment to be looked up
+    :param com: communicator to be looked up
+    :return: JsonResponse containing cosine similarities between solutions of a specific assignment and communicator
+    """
+
     solutions = Solution.objects.filter(assignment_id=ass, communicator=com).all()
     man = manager.MetricsManager()
 
@@ -268,6 +336,10 @@ def fetch_assignment_similarity_for_communicator(request, ass, com):
 
 
 class EditSingleSolution(FormView):
+    """
+    FormView to edit an existing solution
+    """
+
     template_name = 'visualization/edit_solution.html'
     form_class = SolutionEditForm
 
@@ -318,6 +390,10 @@ class EditSingleSolution(FormView):
 
     def __build_existing_test_results__(self, solution_id: int):
         """
+            Build a datastructure containing all testcases/-results of an assignment for use in the template.
+
+            Structure:
+            '''
             {
                 timestamp_1: {
                     'compiles': Testresult,
@@ -329,6 +405,7 @@ class EditSingleSolution(FormView):
                 },
                 ...
             }
+            '''
         """
 
         result = {}
@@ -385,6 +462,10 @@ class EditSingleSolution(FormView):
 
 
 class TestMetricVisualizationView(TemplateView):
+    """
+    View to display the tag success rate of all available tags and the overall success rate
+    """
+
     template_name = 'visualization/success/success_metric_overview.html'
 
     def get_context_data(self, **kwargs):
@@ -397,6 +478,11 @@ class TestMetricVisualizationView(TemplateView):
         return context
 
     def __prepare_metrics__(self) -> dict[Tag, dict[str, any]]:
+        """
+        dynamically calculate the success rates
+        :return: calculated tag and overall success rates
+        """
+
         man = manager.MetricsManager()
         success_metrics = {}
 
@@ -434,6 +520,11 @@ class TestMetricVisualizationView(TemplateView):
         return success_metrics
 
     def __get_newest_timestamps_for_assignment__(self, assignment: Assignment):
+        """
+        fetch the must current testing timestamps for all three types of testcases for the given assignment
+        :param assignment: assignment to lookup the timestamps for
+        :return: three most current timestamp for three types of testcases
+        """
         newest_compile = CompilesTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
         newest_contains = ContainsTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
         newest_unit = UnitTestresult.objects.filter(solution__assignment=assignment).order_by('-timestamp')
@@ -446,6 +537,10 @@ class TestMetricVisualizationView(TemplateView):
 
 
 class VisualizationCompareView(TemplateView):
+    """
+    View to display two selected solutions side-by-side
+    """
+
     template_name = 'visualization/compare_solutions.html'
 
     def get_context_data(self, **kwargs):
@@ -463,6 +558,12 @@ class VisualizationCompareView(TemplateView):
 
 
 def export_similarity_report(request):
+    """
+    endpoint for exporting and downloading the current similarity report
+    :param request: Request parameters
+    :return: HttpResponse of type text/csv
+    """
+
     file_path = os.path.join(__get_report_folder_path__(), 'similarity_report.csv')
 
     generate_similarity_report_for_export()
@@ -474,6 +575,12 @@ def export_similarity_report(request):
 
 
 def export_success_report(request):
+    """
+    endpoint for exporting and downloading the current testing report
+    :param request: Request parameters
+    :return: HttpResponse of type text/csv
+    """
+
     file_path = os.path.join(__get_report_folder_path__(), 'success_report.csv')
 
     generate_success_report_for_export()

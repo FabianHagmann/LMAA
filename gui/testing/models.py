@@ -9,7 +9,14 @@ Contains all models required for assignments-pages
     <li>CompilesTestcase</li>
     <li>ContainsTestcase</li>
     <li>UnitTestcase</li>
-    <li>Testresult</li>
+    <li>CompilesTestresult</li>
+    <li>ContainsTestresult</li>
+    <li>UnitTestresult</li>
+</ul>
+
+Additional non-model classes
+<ul>
+    <li>AssignmentWithTestcases</li>
 </ul>
 """
 
@@ -83,3 +90,27 @@ class UnitTestresult(models.Model):
 
     class Meta:
         db_table = "unit_testresult"
+
+
+# Additional non-model classes
+class AssignmentWithTestcases:
+    """
+    Additional class to store an assignment in combination with
+        - the status of the compiles testcase
+        - the number of contains testcases
+        - the status of the unit testcase
+    """
+    def __init__(self, assignment: Assignment = None, compiles_testcase_active: bool = False,
+                 contains_testcases: int = 0, unit_testcase_active: bool = False) -> None:
+        """
+        init method
+        :param assignment: assignment in question
+        :param compiles_testcase_active: status of the compiles testcase
+        :param contains_testcases: number of contains testcases
+        :param unit_testcase_active: status of the unit testcase
+        """
+        self.assignment = assignment
+        self.compiles_testcase = compiles_testcase_active
+        self.contains_testcases = contains_testcases
+        self.unit_testcase = unit_testcase_active
+        super().__init__()

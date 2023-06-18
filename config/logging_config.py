@@ -8,7 +8,7 @@ from utils import project_utils
 """
 Logging configuration
 
-Can be used by every component for configuring logging rules and output.
+Can be used by every component except gui for configuring logging rules and output.
 """
 
 

@@ -30,6 +30,10 @@ class CommunicationResponse:
 
 
 class PropertyType(IntEnum):
+    """
+    Enum containing all possible types for communicator properties
+    """
+
     int = 1
     float = 2
     str = 3
@@ -41,6 +45,15 @@ class PropertyType(IntEnum):
 
 
 class CommunicatorProperty:
+    """
+    Communicator Property containing
+    - name
+    - type
+    - is mandatory
+    - default value
+    - is configuration
+    """
+
     def __init__(self, name: str, type: PropertyType, mandatory, default, configuration):
         super().__init__()
         self.name = name
@@ -51,6 +64,12 @@ class CommunicatorProperty:
 
     @staticmethod
     def fetch_default_value(props: list, searched_name: str) -> str | int | float:
+        """
+        get the default value of a specific property contained in a list of properties
+        :param props: list of properties
+        :param searched_name: name of the searched properties
+        :return: found default value or -1
+        """
         for prop in props:
             if prop.name == searched_name:
                 return prop.default

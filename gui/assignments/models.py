@@ -16,12 +16,7 @@ Contains all models required for assignments-pages
 <ul>
     <li>Tag</li>
     <li>Assignment</li>
-    <li>Testcase</li>
-    <li>CompilesTestcase</li>
-    <li>ContainsTestcase</li>
-    <li>UnitTestcase</li>
     <li>Solution</li>
-    <li>Testresult</li>
 </ul>
 """
 

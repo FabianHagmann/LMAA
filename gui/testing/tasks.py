@@ -11,19 +11,28 @@ from scripts.testing.testing_executors import TestExecutionCompilesResponse, Tes
 
 
 class TestingExecutionThread(threading.Thread):
+    """
+    Thread for asynchronously executing assignment tests
+
+    Receives an assignment id and executes all available testcases for the selected assignment
+    Stores the generated testresults in the database
+    """
 
     def __init__(self, assignment_id: int, **kwargs) -> None:
         self.assignment_id = assignment_id
         super(TestingExecutionThread, self).__init__(**kwargs)
 
     def run(self) -> None:
+        """
+        fetch the assignment and its testcases and execute them
+        """
+
         execution_timestamp = datetime.now()
 
         # fetch and check assignment
         try:
             assignment = Assignment.objects.get(id=self.assignment_id)
         except Assignment.DoesNotExist:
-            # TODO: do error handling
             return
 
         # fetch all testcases for assignment
@@ -59,6 +68,14 @@ class TestingExecutionThread(threading.Thread):
     def __store_execution_compile_response__(self, response: TestExecutionCompilesResponse, solution: Solution,
                                              testcase: CompilesTestcase,
                                              timestamp):
+        """
+        stores the testresult from an execution
+        :param response: execution response
+        :param solution: solution of the response
+        :param testcase: testcase of the response
+        :param timestamp: execution timestamp
+        """
+
         compile_test_result = CompilesTestresult(solution=solution,
                                                  testcase=testcase,
                                                  timestamp=timestamp,
@@ -69,6 +86,14 @@ class TestingExecutionThread(threading.Thread):
     def __store_execution_contains_response__(self, response: TestExecutionContainsResponse, solution: Solution,
                                               testcase: ContainsTestcase,
                                               timestamp):
+        """
+        stores the testresult from an execution
+        :param response: execution response
+        :param solution: solution of the response
+        :param testcase: testcase of the response
+        :param timestamp: execution timestamp
+        """
+
         contains_test_result = ContainsTestresult(solution=solution,
                                                   testcase=testcase,
                                                   timestamp=timestamp,
@@ -80,6 +105,14 @@ class TestingExecutionThread(threading.Thread):
     def __store_execution_unit_response__(self, response: TestExecutionUnitResponse, solution: Solution,
                                               testcase: UnitTestcase,
                                               timestamp):
+        """
+        stores the testresult from an execution
+        :param response: execution response
+        :param solution: solution of the response
+        :param testcase: testcase of the response
+        :param timestamp: execution timestamp
+        """
+
         unit_test_result = UnitTestresult(solution=solution,
                                           testcase=testcase,
                                           timestamp=timestamp,
@@ -90,6 +123,12 @@ class TestingExecutionThread(threading.Thread):
         unit_test_result.save()
 
     def __convert_file_to_string__(self, file) -> str:
+        """
+        converts the uploaded unit test file into a string to be passed to the test-executor
+        :param file: file to be converted
+        :return: converted string of unittest-file
+        """
+
         code = ''
         file_stream = file.open(mode='rb')
 

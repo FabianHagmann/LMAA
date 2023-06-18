@@ -165,6 +165,13 @@ class OpenAICommunicatorImpl(Communicator):
 
     @staticmethod
     def __build_message_from_prompt_and_role__(prompt: str, system_desc: str) -> str:
+        """
+        build a complete API-style message from prompt and system description
+        :param prompt: user input (assignment text)
+        :param system_desc: system role (selected role)
+        :return:
+        """
+
         system_message = {'role': 'system', 'content': system_desc}
         user_message = {'role': 'user', 'content': prompt}
         messages = [system_message, user_message]
@@ -172,6 +179,12 @@ class OpenAICommunicatorImpl(Communicator):
         return messages
 
     def __is_property_select__(self, prop_name):
+        """
+        checks if the property with the given name is a select property
+        :param prop_name: name of the checked property
+        :return: true if the property is of type select, false otherwise
+        """
+
         for prop in self.properties:
             if prop.name != prop_name:
                 continue

@@ -8,6 +8,12 @@ from utils import project_utils
 
 
 def generate_similarity_report_for_export():
+    """
+    function for generating and exporting the similarity report
+
+    generates the report and exports it into the file /data/reports/similarity_report.csv
+    """
+
     # generate folder and file
     __generate_report_folder__()
     similarity_report_file = open(os.path.join(__get_report_folder_path__(), 'similarity_report.csv'), 'w')
@@ -66,6 +72,12 @@ def generate_similarity_report_for_export():
 
 
 def generate_success_report_for_export():
+    """
+    function for generating and exporting the success report
+
+    generates the report and exports it into the file /data/reports/success_report.csv
+    """
+
     # generate folder and file
     __generate_report_folder__()
     similarity_report_file = open(os.path.join(__get_report_folder_path__(), 'success_report.csv'), 'w')
@@ -162,16 +174,29 @@ def generate_success_report_for_export():
 
 
 def __generate_report_folder__() -> None:
+    """
+    Creates the report folder "/data/reports" if it does not exist
+    """
     report_folder_path = __get_report_folder_path__()
     if not os.path.exists(report_folder_path):
         os.makedirs(report_folder_path)
 
 
 def __get_report_folder_path__() -> str:
+    """
+    Build the report folder path "/data/reports/"
+    :return: path as a string
+    """
     return os.path.join(project_utils.find_root_path(__file__), 'data', 'reports')
 
 
 def __generate_report_line__(columns: list[any], delimiter: str) -> str:
+    """
+    Generate a CSV line with the given values and delimiters
+    :param columns: vales for CSV line. Can be float, String or None
+    :param delimiter: delimiter used for the CSV line
+    :return: generated CSV line as string
+    """
     line = ''
     for i in range(0, len(columns) - 1):
         if __isfloat__(columns[i]):
@@ -190,6 +215,12 @@ def __generate_report_line__(columns: list[any], delimiter: str) -> str:
 
 
 def __prepare_assignment_solutions_single_source__(solutions):
+    """
+    Converts a queryset of solutions into an array
+    :param solutions: queryset of Solutions
+    :return: converted array
+    """
+
     prepared_solutions = []
     for solution in solutions:
         prepared_solutions.append(solution.solution)
@@ -197,6 +228,12 @@ def __prepare_assignment_solutions_single_source__(solutions):
 
 
 def __prepare_assignment_solutions_single_source_with_ids__(solutions):
+    """
+    Converts a queryset of solutions into a dict mapped by the solutions' id
+    :param solutions: queryset of Solutions
+    :return: converted dict
+    """
+
     prepared_solutions = {}
     for solution in solutions:
         prepared_solutions.__setitem__(solution.id, solution.solution)
@@ -204,6 +241,12 @@ def __prepare_assignment_solutions_single_source_with_ids__(solutions):
 
 
 def __prepare_halstead_volume_list__(ass_halstead_complexity):
+    """
+    Convert the halstead metrics into an array of values
+    :param ass_halstead_complexity: halstead metrics dict exported from metrics_manager
+    :return: converted array of program volumes
+    """
+
     volume_list = []
     for metric in ass_halstead_complexity.values():
         volume_list.append(metric.get('Program Volume'))
@@ -211,6 +254,12 @@ def __prepare_halstead_volume_list__(ass_halstead_complexity):
 
 
 def __isfloat__(num):
+    """
+    checks if the given obj is a float
+    :param num: object to be checked
+    :return: true if it is a float, otherwise false
+    """
+
     if num is None:
         return False
     try:

@@ -1,9 +1,9 @@
 import unittest
+
 from communicator import (
     CommunicationResponse,
     PropertyType,
     CommunicatorProperty,
-    Communicator,
 )
 
 
