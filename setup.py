@@ -36,4 +36,4 @@ try:
     app = get_wsgi_application()
     call_command('migrate')
 except Exception as e:
-    raise SystemExit(f'Error trying to migrate database')
+    raise SystemExit(f'Error trying to migrate database\n' + str(e) + "\n" + "(Make sure all requirements are installed)")
