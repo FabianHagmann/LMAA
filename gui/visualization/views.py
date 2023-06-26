@@ -237,10 +237,8 @@ class AssignmentSimilarity(TemplateView):
 
         prepared_solutions = self.__prepare_assignment_solutions_single_source__(solutions)
         single_source_cosine_sim_matrix = man.similarity_cosine_single_source(prepared_solutions)
-        single_source_cosine_total_average = man.similarity_cosine_average(solutions.count(),
-                                                                           single_source_cosine_sim_matrix)
-        single_source_cosine_total_median = man.similarity_cosine_median(solutions.count(),
-                                                                         single_source_cosine_sim_matrix)
+        single_source_cosine_median = man.similarity_cosine_median(solutions.count(), single_source_cosine_sim_matrix)
+        single_source_cosine_range = man.similarity_cosine_max(single_source_cosine_sim_matrix) - man.similarity_cosine_min(single_source_cosine_sim_matrix)
 
         prepared_solutions_with_ids = self.__prepare_assignment_solutions_single_source_with_ids__(solutions)
         single_source_mccabe_complexity = man.mccabe_complexity(prepared_solutions_with_ids)
@@ -248,14 +246,14 @@ class AssignmentSimilarity(TemplateView):
         halstead_volume_list = self.__prepare_halstead_volume_list__(single_source_halstead_complexity)
 
         context['single_source_cosine_sim_matrix'] = single_source_cosine_sim_matrix
-        context['single_source_cosine_total_average'] = single_source_cosine_total_average
-        context['single_source_cosine_total_median'] = single_source_cosine_total_median
+        context['single_source_cosine_median'] = single_source_cosine_median
+        context['single_source_cosine_range'] = single_source_cosine_range
         context['single_source_mccabe_complexity'] = single_source_mccabe_complexity
         context['single_source_halstead_complexity'] = single_source_halstead_complexity
-        context['single_source_mccabe_complexity_mean'] = statistics.mean(single_source_mccabe_complexity.values())
-        context['single_source_mccabe_complexity_sd'] = statistics.stdev(single_source_mccabe_complexity.values())
-        context['single_source_halstead_volume_mean'] = statistics.mean(halstead_volume_list)
-        context['single_source_halstead_volume_sd'] = statistics.stdev(halstead_volume_list)
+        context['single_source_mccabe_complexity_median'] = statistics.median_low(single_source_mccabe_complexity.values())
+        context['single_source_mccabe_complexity_range'] = man.statistics_max(single_source_mccabe_complexity.values()) - man.statistics_min(single_source_mccabe_complexity.values())
+        context['single_source_halstead_volume_median'] = statistics.median_low(halstead_volume_list)
+        context['single_source_halstead_volume_range'] = man.statistics_max(halstead_volume_list) - man.statistics_min(halstead_volume_list)
         context['single_source_mccabe_complexity_steps'] = np.linspace(min(single_source_mccabe_complexity.values()),
                                                                        max(single_source_mccabe_complexity.values()), 6)
         context['single_source_halstead_volume_steps'] = np.linspace(min(halstead_volume_list),

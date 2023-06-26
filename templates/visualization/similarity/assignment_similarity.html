@@ -91,12 +91,12 @@
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
-                                <td class="col-10">Cosine average similarity</td>
-                                <td>{{ single_source_cosine_total_average|floatformat:2 }}</td>
+                                <td class="col-10">Cosine similarity median</td>
+                                <td>{{ single_source_cosine_median|floatformat:2 }}</td>
                             </tr>
                             <tr>
-                                <td class="col-10">Cosine mean similarity</td>
-                                <td>{{ single_source_cosine_total_median|floatformat:2 }}</td>
+                                <td class="col-10">Cosine similarity range</td>
+                                <td>{{ single_source_cosine_range|floatformat:2 }}</td>
                             </tr>
                             </tbody>
                         </table>
@@ -179,12 +179,12 @@
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
-                                <td>Mean</td>
-                                <td>{{ single_source_mccabe_complexity_mean|floatformat:2 }}</td>
+                                <td>Median</td>
+                                <td>{{ single_source_mccabe_complexity_median|floatformat:0 }}</td>
                             </tr>
                             <tr>
-                                <td>Standard deviation</td>
-                                <td>{{ single_source_mccabe_complexity_sd|floatformat:2 }}</td>
+                                <td>Range</td>
+                                <td>{{ single_source_mccabe_complexity_range|floatformat:0 }}</td>
                             </tr>
                             </tbody>
                         </table>
@@ -284,12 +284,12 @@
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
-                                <td>Volume Mean</td>
-                                <td>{{ single_source_halstead_volume_mean|floatformat:2 }}</td>
+                                <td>Volume median</td>
+                                <td>{{ single_source_halstead_volume_median|floatformat:1 }}</td>
                             </tr>
                             <tr>
-                                <td>Volume Standard deviation</td>
-                                <td>{{ single_source_halstead_volume_sd|floatformat:2 }}</td>
+                                <td>Volume range</td>
+                                <td>{{ single_source_halstead_volume_range|floatformat:1 }}</td>
                             </tr>
                             </tbody>
                         </table>

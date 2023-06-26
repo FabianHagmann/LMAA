@@ -56,12 +56,12 @@ def generate_similarity_report_for_export():
         ass_mccabe_sd = statistics.stdev(ass_mccabe_complexity.values())
         ass_mccabe_min = min(ass_mccabe_complexity.values())
         ass_mccabe_max = max(ass_mccabe_complexity.values())
-        ass_mccabe_med = statistics.median(ass_mccabe_complexity.values())
+        ass_mccabe_med = statistics.median_low(ass_mccabe_complexity.values())
         ass_halstead_mean = statistics.mean(ass_halstead_volume_list)
         ass_halstead_sd = statistics.stdev(ass_halstead_volume_list)
         ass_halstead_min = min(ass_halstead_volume_list)
         ass_halstead_max = max(ass_halstead_volume_list)
-        ass_halstead_med = statistics.median(ass_halstead_volume_list)
+        ass_halstead_med = statistics.median_low(ass_halstead_volume_list)
 
         # write line
         line_columns = [assignment.semester, assignment.sheet, assignment.task, assignment.subtask, ass_length, tags,

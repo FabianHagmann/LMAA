@@ -1,3 +1,5 @@
+import sys
+
 from scripts.visualization.metrics.similarity_metric import SimilarityMetric
 from scripts.visualization.metrics.success_metric import SuccessMetric, UnweightedTestResult
 
@@ -90,4 +92,28 @@ class MetricsManager:
         :return: average compiles success rate
         """
         return self.__success_metric__.calculate_tag_compiles_success_rate(testresults)
+
+    def statistics_max(self, values):
+        """
+        find and return the maximum value contained in a list of values
+        :param values: list of observed values
+        :return: maximum value contained in values
+        """
+        max_val = -1
+        for val in values:
+            if val > max_val:
+                max_val = val
+        return max_val
+
+    def statistics_min(self, values):
+        """
+        find and return the minimum value contained in a list of values
+        :param values: list of observed values
+        :return: minimum value contained in values
+        """
+        min_val = sys.maxsize
+        for val in values:
+            if val < min_val:
+                min_val = val
+        return min_val
 
