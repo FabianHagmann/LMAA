@@ -70,6 +70,10 @@ class SuccessMetric:
         :param testresults_2dim: list of testresults for a tag. the 1st represents the assignments, the 2nd dimension represents the must current testresults for the assignment
         :return: compiles success rate as a float [0;1]
         """
+
+        if len(testresults_2dim) == 0:
+            return 0
+
         average_success_list = self.__calculate_unweighted_average_list_multiple_assignments__(testresults_2dim)
 
         average_success_sum = 0
