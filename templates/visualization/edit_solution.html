@@ -71,14 +71,22 @@
                         {% endfor %}
                         <td>
                             {% if 'unit' in test_results|lookup:timestamp %}
-                                {% if test_results|lookup:timestamp|lookup:'unit'|get_attr:'result' %}
-                                    {% bs_icon 'check2' color='green' size='1.5em' %}
-                                {% else %}
-                                    <div style="color: red; vertical-align: text-top;">
-                                        {% bs_icon 'x' color='red' size='1.5em' %}
-                                        ({{ test_results|lookup:timestamp|lookup:'unit'|lookup:ctc|get_attr:'success_testcases' }}/{{ test_results|lookup:timestamp|lookup:'unit'|lookup:ctc|get_attr:'total_testcases' }})
-                                    </div>
-                                {% endif %}
+                                {% with unit_result=test_results|lookup:timestamp|lookup:'unit' %}
+                                    {% if unit_result|get_attr:'result' %}
+                                        <div style="color: green">{% bs_icon 'check2' color='green' size='1.5em' %}
+                                            ({{ unit_result|get_attr:'success_testcases' }}/{{ unit_result|get_attr:'total_testcases' }})
+                                        </div>
+                                    {% elif unit_result|get_attr:'total_testcases' == -1 %}
+                                        <div style="color: red">{% bs_icon 'x' color='red' size='1.5em' %} (exec.
+                                            error)
+                                        </div>
+                                    {% else %}
+                                        <div style="color: red; vertical-align: text-top;">
+                                            {% bs_icon 'x' color='red' size='1.5em' %}
+                                            ({{ unit_result|get_attr:'success_testcases' }}/{{ unit_result|get_attr:'total_testcases' }})
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
                             {% endif %}
                         </td>
                     </tr>
