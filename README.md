@@ -103,5 +103,4 @@ When removing a communicator be sure to comply with the following instructions:
 
 ## 3. More information
 
-LMAA was developed as a part of the thesis *Large language models in computer science education: Collecting and 
-analysing LLM performance for introductory programming courses* at TU Wien Informatics by Fabian Hagmann.
+LMAA was developed as a part of the thesis *Application of generative AI in introductory programming courses* at TU Wien Informatics by Fabian Hagmann.
